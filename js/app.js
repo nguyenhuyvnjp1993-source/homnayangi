@@ -516,6 +516,31 @@
   muteBtn.addEventListener("click", function () { S.muted = !S.muted; drawMute(); });
 
   /* ---------- Khởi động: đọc 20 món từ data/mon-an.json ---------- */
+  /* ---------- 10 phút không dùng = đóng app ----------
+     App web không tự tắt được trên iPhone, nên khi Yến không chạm vào app 10 phút
+     (hoặc để app chạy nền quá 10 phút), lần chạm/mở tiếp theo app tải lại từ đầu:
+     như vừa mở app mới, ảnh nền được xáo lại. Đang lưu thì không tải lại. */
+  var IDLE_MS = 10 * 60 * 1000;
+  var lastActive = Date.now();
+  function restartIfIdle() {
+    if (Date.now() - lastActive >= IDLE_MS && !S.saving) { location.reload(); return true; }
+    lastActive = Date.now();
+    return false;
+  }
+  ["pointerdown", "keydown"].forEach(function (ev) {
+    document.addEventListener(ev, function (e) {
+      if (restartIfIdle()) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") restartIfIdle();
+  });
+  window.addEventListener("pageshow", function (e) { if (e.persisted) restartIfIdle(); });
+  /* Đang mở mà để yên 10 phút: tự tải lại luôn. */
+  setInterval(function () {
+    if (document.visibilityState === "visible" && Date.now() - lastActive >= IDLE_MS && !S.saving) location.reload();
+  }, 30 * 1000);
+
   drawHearts();
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").then(function () {

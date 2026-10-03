@@ -10,11 +10,10 @@ App: https://homnayangivooi.netlify.app
 - [x] **C2** – Lưu vào Supabase, "Vừa ăn" đọc lịch sử thật.
 - [x] **C3** – Bot Telegram gửi 4 tin, "Đổi món" gửi lại.
 - [x] **C4** – Thông báo 16:00, nhắc 16:15, tự chọn 16:30, trang chạy thử giờ.
-- [x] **C5** – Ảnh nền xáo mỗi lần mở app, chỗ gắn ảnh món và âm thanh, README hoàn chỉnh.
+- [x] **C5** – 20 ảnh món thật, ảnh nền xáo mỗi lần mở app, 10 phút không dùng thì mở lại từ đầu, README hoàn chỉnh.
 
 **Việc còn treo:**
 - [ ] Tải 6 ảnh nền lên `assets/nen/`, rồi nhờ Claude nén (xem mục "Thêm, đổi ảnh và âm thanh").
-- [ ] Tạo 20 ảnh món theo `docs/prompt-anh-mon.md`, tải lên `assets/mon/`, rồi nhờ Claude nén.
 - [ ] Yến bấm Start với bot, sau đó thêm biến `TELEGRAM_CHAT_YEN`.
 - [ ] Trên iPhone của Yến: Thêm vào MH chính → Bật thông báo → thử bằng trang chạy thử.
 
@@ -28,6 +27,8 @@ App: https://homnayangivooi.netlify.app
 | Sau đó | Yến vẫn "Đổi món" được. Tin gửi lại ghi "(đã đổi)" | — |
 
 Mở lại app sau khi đã chốt (cùng ngày) thì app vào thẳng màn "Đã gửi". Mỗi lần mở app, 6 ảnh nền được xáo ngẫu nhiên cho 6 màn hình.
+
+**10 phút không dùng = đóng app:** Yến không chạm vào app 10 phút (đang mở hoặc chạy nền), thì lần chạm hoặc mở tiếp theo, app tải lại từ đầu như vừa mở mới. Ảnh nền được xáo lại, lựa chọn chưa chốt bị bỏ. Món đã chốt vẫn còn, vì đã lưu trong Supabase.
 
 ## Tin Telegram
 | Tin | Gửi ai | Nội dung |
