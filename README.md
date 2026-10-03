@@ -48,6 +48,7 @@ Bảng `bua_an`: mỗi ngày một dòng (`ngay`, `man`, `rau`, `nguon`, `da_doi
 3. Huy và Yến mỗi người mở bot (link `t.me/<tên bot>`) và bấm **Start**.
 4. Mở `https://homnayangivooi.netlify.app/api/telegram-id` → thấy bảng tên và mã chat.
 5. Netlify → thêm `TELEGRAM_CHAT_HUY` = mã của Huy, `TELEGRAM_CHAT_YEN` = mã của Yến → Trigger deploy. Trang `/api/telegram-id` từ đây tự tắt.
+   Chưa có mã của Yến cũng được: Huy vẫn nhận đủ 3 tin, chỉ thiếu tin của Yến. Thêm `TELEGRAM_CHAT_YEN` sau rồi Trigger deploy.
 
 Khi gửi: Yến bấm "Chốt luôn" → Yến 1 tin (ảnh logo + thực đơn), Huy 3 tin (thực đơn, đi chợ, cách nấu). "Gửi lại cho Huy" sau khi đổi món gửi lại cả 4 tin, có ghi "(đã đổi)".
 
@@ -71,7 +72,7 @@ Khi gửi: Yến bấm "Chốt luôn" → Yến 1 tin (ảnh logo + thực đơn
   - nếu kèm `relation ... bua_an does not exist`: chưa chạy `supabase/bang.sql`;
   - nếu kèm `Unexpected token` hoặc lỗi JSON: `data/mon-an.json` sai dấu phẩy/ngoặc.
 - Màn "Đã gửi" báo "Đã lưu món rồi nhé! Nhưng Telegram chưa gửi được":
-  - `Chưa cài TELEGRAM_...`: thiếu biến trong Netlify (mục "Nối bot Telegram");
+  - `Chưa cài TELEGRAM_...`: thiếu token hoặc mã chat của Huy trong Netlify (mục "Nối bot Telegram");
   - `Unauthorized`: token bot sai;
   - `chat not found` hoặc `bot was blocked`: mã chat sai, hoặc người đó chưa bấm Start / đã chặn bot.
   Sửa xong bấm **Gửi lại Telegram** (món đã lưu, không cần chọn lại).
