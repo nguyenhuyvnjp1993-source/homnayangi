@@ -1,6 +1,6 @@
 /* App "Mình ăn gì thế, Vợ ơi": 6 màn hình, dữ liệu món từ data/mon-an.json.
    C2: "Chốt luôn" / "Gửi lại" lưu vào Supabase qua /api/bua-an; "Vừa ăn" đọc lịch sử thật.
-   Chưa gửi Telegram (chặng C3).
+   C3: máy chủ lưu xong thì gửi 4 tin Telegram (Yến 1 tin, Huy 3 tin).
    Logic chuyển màn và chọn món chép theo design/Main.dc.html. */
 (function () {
   "use strict";
@@ -46,6 +46,7 @@
     changed: false,
     changedDays: [],
     sentChanged: false,
+    tgError: "",
     saving: false,
     saveError: ""
   };
@@ -259,6 +260,14 @@
 
   function viewDaGui() {
     var text = S.sentChanged ? "Đã gửi lại thực đơn mới, tin có ghi “(đã đổi)”." : "Thực đơn, danh sách đi chợ và cách nấu đã gửi qua Telegram.";
+    if (S.tgError) {
+      /* Món đã lưu nhưng Telegram chưa gửi được: báo rõ và cho bấm gửi lại. */
+      return '<div class="page dagui"><div class="top">' +
+        '<div class="glass box"><h1 class="title-xl">Đã lưu món rồi nhé!</h1>' +
+        '<p class="save-error" role="alert">Nhưng Telegram chưa gửi được. (' + esc(S.tgError) + ")</p></div></div>" +
+        '<div class="dagui-actions">' + btn(S.saving ? "Đang gửi…" : "Gửi lại Telegram", "tg-retry", "primary", "pill", S.saving) +
+        btn("Đổi món", "to-change", "secondary", "pill", S.saving) + "</div></div>";
+    }
     return '<div class="page dagui"><div class="top"><div class="burst">' + PARTICLES +
       '<div class="check kdc-in"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div></div>' +
       '<div class="glass box"><h1 class="title-xl">Đã gửi cho Huy rồi nhé!</h1><p class="muted">' + esc(text) + "</p></div></div>" +
@@ -358,6 +367,7 @@
     wait: function () { go("chon", { day: 0, picks: emptyPicks() }); },
     "to-change": function () { go("doimon", { changeDay: 0, changeGroup: null, changed: false, changedDays: [], saveError: "" }); },
     retry: function () { location.reload(); },
+    "tg-retry": function () { retryTelegram(); },
     "change-day": function (el) { update({ changeDay: Number(el.dataset.i), changeGroup: null }); },
     "change-man": function () { go("doimon", { changeGroup: "man" }); },
     "change-rau": function () { go("doimon", { changeGroup: "rau" }); },
@@ -420,13 +430,34 @@
     });
   }
 
+  /* Thêm ngày đầu/cuối của đợt để máy chủ soạn tin Telegram cho đủ các ngày. */
+  function batchRange(body) {
+    body.tu = startDate;
+    body.den = addDays(startDate, days().length - 1);
+    return body;
+  }
+
+  /* Telegram lỗi lần trước: chỉ gửi lại, không lưu gì thêm. */
+  function retryTelegram() {
+    if (S.saving) return;
+    update({ saving: true });
+    api("POST", "", batchRange({ chi_gui: true, doi: S.sentChanged }))
+      .then(function (j) { return j.telegram && !j.telegram.ok ? j.telegram.loi || "lỗi không rõ" : ""; },
+            function (err) { return err.message; })
+      .then(function (loi) {
+        if (!loi) sound("ting");
+        update({ saving: false, tgError: loi });
+      });
+  }
+
   function save(list, doi, done) {
     if (S.saving) return;
     update({ saving: true, saveError: "" });
-    api("POST", "", { ngay: list, doi: doi })
-      .then(function () {
+    api("POST", "", batchRange({ ngay: list, doi: doi }))
+      .then(function (j) {
         S.saving = false;
         S.savedPicks = copyPicks(S.picks);
+        S.tgError = j.telegram && !j.telegram.ok ? j.telegram.loi || "lỗi không rõ" : "";
         done();
       })
       .catch(function (err) {
