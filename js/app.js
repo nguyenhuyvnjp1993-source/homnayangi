@@ -422,6 +422,7 @@
     var top = keepScroll && old ? old.scrollTop : 0;
     screenEl.innerHTML = VIEWS[S.screen]();
     drawBg(S.screen);
+    placeLogo();
     var sc = screenEl.querySelector(".scroll");
     if (sc) sc.scrollTop = top;
     drawMute();
@@ -442,8 +443,9 @@
   /* ---------- Nhạc nền ----------
      File: assets/nhac-nen.mp3 (Huy tải lên; không có file thì thôi).
      Chạm vào app lần đầu thì phát một lần (không lặp) cho tới khi hết bài hoặc đóng app.
-     Gửi xong vẫn phát tiếp. Nút loa tắt/bật cả nhạc. 15 giây đầu âm lượng tăng dần từ nhỏ tới đủ. */
+     Gửi xong vẫn phát tiếp. Nút loa tắt/bật cả nhạc. 15 giây đầu âm lượng tăng dần tới MUSIC_VOL. */
   var FADE_IN_S = 15;
+  var MUSIC_VOL = 0.6; /* âm lượng nhạc nền cả bài: 60% */
   var MUSIC_SRC = "assets/nhac-nen.mp3";
   var music = null, musicState = "chua"; /* chua | dang-phat | tam-dung | xong */
   function makeMusic() {
@@ -481,14 +483,14 @@
         var t = ac.currentTime, gn = el.__gain.gain;
         gn.cancelScheduledValues(t);
         gn.setValueAtTime(0.0001, t);
-        gn.linearRampToValueAtTime(1, t + FADE_IN_S);
+        gn.linearRampToValueAtTime(MUSIC_VOL, t + FADE_IN_S);
       } else {
         /* Trình duyệt không có Web Audio: tăng music.volume (máy tính); iPhone bỏ qua bước này. */
         var t0 = Date.now();
         el.volume = 0;
         var timer = setInterval(function () {
           var k = Math.min(1, (Date.now() - t0) / (FADE_IN_S * 1000));
-          el.volume = k;
+          el.volume = k * MUSIC_VOL;
           if (k >= 1) clearInterval(timer);
         }, 200);
       }
@@ -527,6 +529,34 @@
     if (bgEl.getAttribute("src") !== src) bgEl.setAttribute("src", src);
     bgEl.hidden = false;
   }
+
+  /* ---------- Logo hướng dẫn (góc dưới bên trái, mọi màn) ---------- */
+  var helpLogo = document.getElementById("help-logo");
+  var helpEl = document.getElementById("help");
+  /* Màn có thanh nút kéo hết chiều ngang ở đáy (Chốt nhé, Chốt luôn, Gửi lại…) thì nâng logo lên trên thanh đó.
+     Màn Chào / Đã gửi: logo ở sát góc, nút giữa màn dịch sang phải để chừa chỗ (xem app.css). */
+  function placeLogo() {
+    var appBox = app.getBoundingClientRect();
+    var bars = screenEl.querySelectorAll(".bottom-bar, .foot, .dagui-actions");
+    var top = appBox.bottom;
+    for (var i = 0; i < bars.length; i++) {
+      var r = bars[i].getBoundingClientRect();
+      if (r.height && r.left < appBox.left + 124 && r.top < top) top = r.top;
+    }
+    var gap = appBox.bottom - top;
+    app.style.setProperty("--logo-bottom", gap > 0 ? Math.round(gap + 10) + "px" : "calc(16px + var(--safe-bottom))");
+  }
+  window.addEventListener("resize", placeLogo);
+  function openHelp() {
+    helpEl.hidden = false;
+    helpEl.querySelector(".help-body").scrollTop = 0;
+    document.getElementById("help-close").focus();
+  }
+  function closeHelp() { helpEl.hidden = true; helpLogo.focus(); }
+  helpLogo.addEventListener("click", openHelp);
+  document.getElementById("help-close").addEventListener("click", closeHelp);
+  helpEl.addEventListener("click", function (e) { if (e.target === helpEl) closeHelp(); }); /* chạm ra ngoài bảng để đóng */
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !helpEl.hidden) closeHelp(); });
 
   function go(screen, extra) {
     S.screen = screen;

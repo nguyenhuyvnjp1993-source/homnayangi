@@ -31,7 +31,9 @@ App: https://homnayangivooi.netlify.app
 
 **Đợt mới bắt đầu lúc 1:00 sáng thứ 3, thứ 5, thứ 7.** Từ lúc đó app về lại bước chọn món cho đợt mới. Ví dụ: thứ 4 vẫn là đợt thứ 3; 0:30 sáng thứ 3 vẫn là đợt thứ 7 trước đó.
 
-Riêng thông báo 16:00 ngày thường thì mở thẳng màn "Hôm nay ăn gì". Mỗi lần mở app, 6 ảnh nền được xáo ngẫu nhiên cho 6 màn hình.
+Riêng thông báo 16:00 ngày thường thì mở thẳng màn "Hôm nay ăn gì".
+
+**Logo hướng dẫn:** logo tròn 100×100 lắc lư ở góc dưới bên trái, có trên mọi màn. Bấm vào mở bảng hướng dẫn sử dụng cho Yến (nội dung nằm trong `index.html`, phần `id="help"`). Màn có thanh nút ở đáy thì logo nằm ngay trên thanh nút. Mỗi lần mở app, 6 ảnh nền được xáo ngẫu nhiên cho 6 màn hình.
 
 **10 phút không dùng = đóng app:** Yến không chạm vào app 10 phút (đang mở hoặc chạy nền), thì lần chạm hoặc mở tiếp theo, app tải lại từ đầu như vừa mở mới. Ảnh nền được xáo lại, lựa chọn chưa chốt bị bỏ. Món đã chốt vẫn còn, vì đã lưu trong Supabase.
 
@@ -78,7 +80,7 @@ Biến bí mật: tích **Contains secret values**. Không bao giờ dán các g
    - **Ảnh nền:** cho vào `assets/nen/`, tên gì cũng được. Nên có 6 ảnh. App xáo thứ tự mỗi lần mở.
    - **Ảnh món:** cho vào `assets/mon/`, đặt tên đúng mã món (`M1.jpg`, `R4.png`…). Câu lệnh tạo ảnh có sẵn trong `docs/prompt-anh-mon.md`.
    - **Âm thanh:** `assets/pop.mp3` (khi chọn món), `assets/ting.mp3` (khi chốt). Không có thì app dùng âm tạo bằng code.
-   - **Nhạc nền:** `assets/nhac-nen.mp3` (đúng tên này). Tải lên là app dùng luôn, **không cần nhờ Claude**. Chạm vào app lần đầu thì phát một lần (không lặp), tới khi hết bài hoặc đóng app. 15 giây đầu âm lượng tăng dần từ nhỏ tới đủ. Gửi cho Huy xong nhạc vẫn phát tiếp. Nút loa tắt/bật cả nhạc. Ra màn hình chính thì tạm dừng, mở lại app thì phát tiếp. Muốn đổi bài: tải file mới cùng tên đè lên.
+   - **Nhạc nền:** `assets/nhac-nen.mp3` (đúng tên này). Tải lên là app dùng luôn, **không cần nhờ Claude**. Chạm vào app lần đầu thì phát một lần (không lặp), tới khi hết bài hoặc đóng app. 15 giây đầu âm lượng tăng dần, sau đó giữ ở 60% cho cả bài (đổi mức này: `MUSIC_VOL` trong `js/app.js`). Gửi cho Huy xong nhạc vẫn phát tiếp. Nút loa tắt/bật cả nhạc. Ra màn hình chính thì tạm dừng, mở lại app thì phát tiếp. Muốn đổi bài: tải file mới cùng tên đè lên.
 2. Nhờ Claude chạy `tools/xu-ly-anh.sh`. Script này nén ảnh vào `img/` và cập nhật `data/tai-nguyen.json`.
 3. Món nào chưa có ảnh vẫn hiện khung màu. Không cần đủ 20 ảnh một lúc.
 
