@@ -78,6 +78,7 @@ Biến bí mật: tích **Contains secret values**. Không bao giờ dán các g
    - **Ảnh nền:** cho vào `assets/nen/`, tên gì cũng được. Nên có 6 ảnh. App xáo thứ tự mỗi lần mở.
    - **Ảnh món:** cho vào `assets/mon/`, đặt tên đúng mã món (`M1.jpg`, `R4.png`…). Câu lệnh tạo ảnh có sẵn trong `docs/prompt-anh-mon.md`.
    - **Âm thanh:** `assets/pop.mp3` (khi chọn món), `assets/ting.mp3` (khi chốt). Không có thì app dùng âm tạo bằng code.
+   - **Nhạc nền:** `assets/nhac-nen.mp3` (đúng tên này). Tải lên là app dùng luôn, **không cần nhờ Claude**. Chạm vào app lần đầu thì phát một lần, dừng khi hết bài, khi đóng app, hoặc khi tới màn "Đã gửi cho Huy rồi nhé" (cái nào đến trước). Nút loa tắt/bật cả nhạc. Ra màn hình chính thì tạm dừng, mở lại app thì phát tiếp. Muốn đổi bài: tải file mới cùng tên đè lên.
 2. Nhờ Claude chạy `tools/xu-ly-anh.sh`. Script này nén ảnh vào `img/` và cập nhật `data/tai-nguyen.json`.
 3. Món nào chưa có ảnh vẫn hiện khung màu. Không cần đủ 20 ảnh một lúc.
 
@@ -114,7 +115,7 @@ Thay `assets/logo.png` (ảnh vuông), rồi nhờ Claude tạo lại các icon 
 | `data/tai-nguyen.json` | Danh sách ảnh nền, ảnh món, âm thanh (do `tools/xu-ly-anh.sh` tạo) |
 | `docs/cach-nau.md` | Cách nấu 20 món (tin số 3 của Huy) |
 | `docs/prompt-anh-mon.md` | Câu lệnh tạo ảnh cho 20 món |
-| `assets/` | File gốc Huy tải lên: logo, ảnh nền (`nen/`), ảnh món (`mon/`), âm thanh |
+| `assets/` | File gốc Huy tải lên: logo, ảnh nền (`nen/`), ảnh món (`mon/`), âm thanh, nhạc nền (`nhac-nen.mp3`) |
 | `img/` | Ảnh đã nén cho app (do `tools/xu-ly-anh.sh` tạo) |
 | `tools/xu-ly-anh.sh` | Nén ảnh và tạo `data/tai-nguyen.json` |
 | `manifest.webmanifest`, `icons/` | Tên và icon khi "Thêm vào MH chính" |

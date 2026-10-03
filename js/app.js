@@ -422,6 +422,7 @@
     var top = keepScroll && old ? old.scrollTop : 0;
     screenEl.innerHTML = VIEWS[S.screen]();
     drawBg(S.screen);
+    if (S.screen === "dagui") stopMusic(); /* đã gửi rồi nhé → tắt nhạc nền */
     var sc = screenEl.querySelector(".scroll");
     if (sc) sc.scrollTop = top;
     drawMute();
@@ -439,6 +440,47 @@
     list.forEach(function (src) { new Image().src = src; }); /* tải trước để chuyển màn không bị trắng */
   }
   var bgEl = document.getElementById("bg");
+  /* ---------- Nhạc nền ----------
+     File: assets/nhac-nen.mp3 (Huy tải lên; không có file thì thôi).
+     Chạm vào app lần đầu thì phát một lần (không lặp). Dừng khi: hết bài, đóng app,
+     hoặc tới màn "Đã gửi cho Huy rồi nhé" – cái nào đến trước. Nút loa tắt/bật cả nhạc. */
+  var MUSIC_SRC = "assets/nhac-nen.mp3";
+  var music = null, musicState = "chua"; /* chua | dang-phat | tam-dung | xong */
+  function startMusic() {
+    if (musicState !== "chua") return;
+    if (!music) {
+      music = new Audio(MUSIC_SRC);
+      music.preload = "auto";
+      music.volume = 0.6;
+      music.addEventListener("ended", function () { musicState = "xong"; });
+      music.addEventListener("error", function () { musicState = "xong"; });
+    }
+    if (S.muted) { musicState = "tam-dung"; return; }
+    musicState = "dang-phat";
+    var p = music.play();
+    /* iPhone chưa cho phát (chưa tính là một lần chạm) thì chờ lần chạm sau. */
+    if (p && p.catch) p.catch(function () { if (musicState === "dang-phat") musicState = "chua"; });
+  }
+  function stopMusic() {
+    if (music) music.pause();
+    musicState = "xong";
+  }
+  function pauseMusic() {
+    if (music && musicState === "dang-phat") { music.pause(); musicState = "tam-dung"; }
+  }
+  function resumeMusic() {
+    if (music && musicState === "tam-dung" && !S.muted && document.visibilityState === "visible") {
+      musicState = "dang-phat";
+      var p = music.play();
+      if (p && p.catch) p.catch(function () { musicState = "tam-dung"; });
+    }
+  }
+  ["touchend", "click"].forEach(function (ev) { document.addEventListener(ev, startMusic, true); });
+  /* Ra màn hình chính / khóa máy: tạm dừng; mở lại app thì phát tiếp. */
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") resumeMusic(); else pauseMusic();
+  });
+
   function drawBg(screen) {
     var src = BG_OF[screen] || BG_OF.chao;
     if (!src) { bgEl.hidden = true; return; }
@@ -534,7 +576,12 @@
     if (fn) fn(el);
   });
 
-  muteBtn.addEventListener("click", function () { S.muted = !S.muted; drawMute(); sound("pop"); /* bật lại tiếng thì kêu "pop"; đang tắt thì im */ });
+  muteBtn.addEventListener("click", function () {
+    S.muted = !S.muted;
+    drawMute();
+    sound("pop"); /* bật lại tiếng thì kêu "pop"; đang tắt thì im */
+    if (S.muted) pauseMusic(); else resumeMusic();
+  });
 
   /* ---------- Khởi động: đọc 20 món từ data/mon-an.json ---------- */
   /* ---------- 10 phút không dùng = đóng app ----------
