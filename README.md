@@ -25,7 +25,13 @@ App: https://homnayangivooi.netlify.app
 | 16:30 | Chưa chốt: app tự chọn (không lặp 3 ngày), lưu, gửi 4 tin ghi "(app tự chọn)" | — |
 | Sau đó | Yến vẫn "Đổi món" được. Tin gửi lại ghi "(đã đổi)" | — |
 
-Mở lại app sau khi đã chốt (cùng ngày) thì app vào thẳng màn "Đã gửi". Mỗi lần mở app, 6 ảnh nền được xáo ngẫu nhiên cho 6 màn hình.
+**Mở app:** luôn vào màn 1 (Chào). Bấm "Chọn món thôi":
+- Đợt hiện tại chưa chốt: vào màn chọn món.
+- Đã chốt rồi (Yến chọn hoặc app tự chọn): sang màn "Đã gửi cho Huy rồi nhé!", vẫn bấm Đổi món được.
+
+**Đợt mới bắt đầu lúc 1:00 sáng thứ 3, thứ 5, thứ 7.** Từ lúc đó app về lại bước chọn món cho đợt mới. Ví dụ: thứ 4 vẫn là đợt thứ 3; 0:30 sáng thứ 3 vẫn là đợt thứ 7 trước đó.
+
+Riêng thông báo 16:00 ngày thường thì mở thẳng màn "Hôm nay ăn gì". Mỗi lần mở app, 6 ảnh nền được xáo ngẫu nhiên cho 6 màn hình.
 
 **10 phút không dùng = đóng app:** Yến không chạm vào app 10 phút (đang mở hoặc chạy nền), thì lần chạm hoặc mở tiếp theo, app tải lại từ đầu như vừa mở mới. Ảnh nền được xáo lại, lựa chọn chưa chốt bị bỏ. Món đã chốt vẫn còn, vì đã lưu trong Supabase.
 
