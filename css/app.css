@@ -231,15 +231,17 @@ h1, h2, p { margin: 0; }
 .dish-name .main { font-family: var(--font-display); font-size: 18px; line-height: 24px; font-weight: 800; }
 
 /* Màn 4: Đã gửi */
-.dagui { padding: calc(40px + var(--safe-top)) 20px calc(40px + var(--safe-bottom)); align-items: center; justify-content: space-between; text-align: center; }
-.dagui .top { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.burst { position: relative; width: 220px; height: 220px; }
+.dagui { padding: calc(72px + var(--safe-top)) 16px calc(40px + var(--safe-bottom)); align-items: center; justify-content: space-between; }
+.sent-box { align-self: stretch; display: flex; align-items: center; gap: 14px; text-align: left; }
+.sent-box .txt { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.burst { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
 .burst .check {
-  position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px 0 0 -60px;
-  border-radius: 999px; background: var(--pink); box-shadow: var(--shadow-pop-pink);
+  position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px;
+  border-radius: 999px; background: var(--pink); box-shadow: 0 0 0 3px #ffffff, 0 4px 0 3px #9c0a41;
   display: flex; align-items: center; justify-content: center;
 }
-.dagui .box { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+.dagui .box { padding: 14px 16px; }
+.dagui .title-lg { font-size: 26px; line-height: 32px; }
 .dagui-actions { display: flex; flex-direction: column; align-items: center; gap: 22px; }
 
 /* Màn 5: Đổi món */

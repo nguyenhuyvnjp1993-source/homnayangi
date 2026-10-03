@@ -164,13 +164,15 @@
     }).join("");
   }
 
+  /* Hạt kẹo nổ quanh dấu ✓ ở màn "Đã gửi" (thu nhỏ để khung chữ gọn, không che ảnh nền). */
   var PARTICLES = (function () {
+    var k = 0.55;
     var out = "";
     for (var i = 0; i < 20; i++) {
       var a = (i / 20) * Math.PI * 2 + (i % 2 ? 0.12 : -0.08);
-      var r = 92 + (i % 3) * 18;
-      var dx = Math.round(Math.cos(a) * r), dy = Math.round(Math.sin(a) * r + 30);
-      var pill = i % 3 === 0, w = pill ? 22 : 14, h = pill ? 10 : 14;
+      var r = (92 + (i % 3) * 18) * k;
+      var dx = Math.round(Math.cos(a) * r), dy = Math.round(Math.sin(a) * r);
+      var pill = i % 3 === 0, w = pill ? 14 : 9, h = pill ? 7 : 9;
       out += '<span class="kdc-p" style="--dx:' + dx + "px;--dy:" + dy + "px;width:" + w + "px;height:" + h + "px;margin:" + (-h / 2) + "px 0 0 " + (-w / 2) +
         "px;border-radius:999px;background:" + CF_COLORS[i % 5] + ";animation-delay:" + (i % 4) * 30 + 'ms"></span>';
     }
@@ -290,15 +292,16 @@
     var text = S.sentChanged ? "Đã gửi lại thực đơn mới, tin có ghi “(đã đổi)”." : "Thực đơn, danh sách đi chợ và cách nấu đã gửi qua Telegram.";
     if (S.tgError) {
       /* Món đã lưu nhưng Telegram chưa gửi được: báo rõ và cho bấm gửi lại. */
-      return '<div class="page dagui"><div class="top">' +
-        '<div class="glass box"><h1 class="title-xl">Đã lưu món rồi nhé!</h1>' +
+      return '<div class="page dagui">' +
+        '<div class="glass box sent-box"><div class="txt"><h1 class="title-lg">Đã lưu món rồi nhé!</h1>' +
         '<p class="save-error" role="alert">Nhưng Telegram chưa gửi được. (' + esc(S.tgError) + ")</p></div></div>" +
         '<div class="dagui-actions">' + btn(S.saving ? "Đang gửi…" : "Gửi lại Telegram", "tg-retry", "primary", "pill", S.saving) +
         btn("Đổi món", "to-change", "secondary", "pill", S.saving) + "</div></div>";
     }
-    return '<div class="page dagui"><div class="top"><div class="burst">' + PARTICLES +
-      '<div class="check kdc-in"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div></div>' +
-      '<div class="glass box"><h1 class="title-xl">Đã gửi cho Huy rồi nhé!</h1><p class="muted">' + esc(text) + "</p></div></div>" +
+    /* Khung chữ gọn ở trên cùng (✓ nằm cạnh chữ) để không che mặt 2 mẹ con trong ảnh nền. */
+    return '<div class="page dagui"><div class="glass box sent-box"><div class="burst">' + PARTICLES +
+      '<div class="check kdc-in"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div></div>' +
+      '<div class="txt"><h1 class="title-lg">Đã gửi cho Huy rồi nhé!</h1><p class="muted">' + esc(text) + "</p></div></div>" +
       btn("Đổi món", "to-change", "secondary", "pill") + "</div>";
   }
 
