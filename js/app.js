@@ -679,6 +679,34 @@
     if (document.visibilityState === "visible" && Date.now() - lastActive >= IDLE_MS && !S.saving) location.reload();
   }, 30 * 1000);
 
+  /* ---------- Tự cập nhật bản mới ----------
+     iPhone hay giữ nguyên trang cũ khi mở lại app, nên bản mới trên Netlify không hiện.
+     Mỗi khi app được mở lại (và 5 phút một lần), so index.html + app.js trên mạng với lúc mở app;
+     khác thì tải lại – trừ khi đang chọn / đổi món dở (để lần sau). */
+  var VERSION_FILES = ["index.html", "js/app.js", "css/app.css"];
+  var loadedVersion = null;
+  function fetchVersion() {
+    return Promise.all(VERSION_FILES.map(function (f) {
+      return fetch(f, { cache: "no-store" }).then(function (r) { return r.ok ? r.text() : ""; });
+    })).then(function (texts) {
+      var all = texts.join("|"), h = 0;
+      for (var i = 0; i < all.length; i++) h = (h * 31 + all.charCodeAt(i)) | 0;
+      return all.length + ":" + h;
+    });
+  }
+  fetchVersion().then(function (v) { loadedVersion = v; }).catch(function () {});
+  function checkUpdate() {
+    if (!loadedVersion || document.visibilityState !== "visible") return;
+    var busy = S.saving || S.screen === "chon" || S.screen === "xacnhan" || S.screen === "doimon";
+    if (busy) return;
+    fetchVersion().then(function (v) {
+      if (v !== loadedVersion && !S.saving) location.reload();
+    }).catch(function () {});
+  }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") checkUpdate(); });
+  window.addEventListener("pageshow", function (e) { if (e.persisted) checkUpdate(); });
+  setInterval(checkUpdate, 5 * 60 * 1000);
+
   drawHearts();
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").then(function () {
