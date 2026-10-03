@@ -54,6 +54,7 @@ Bảng `bua_an`: mỗi ngày một dòng (`ngay`, `man`, `rau`, `nguon`, `da_doi
 ## Hỏng thì xem ở đâu
 - App báo "Chưa tải được dữ liệu":
   - nếu kèm chữ `Chưa cài SUPABASE_URL...`: thiếu biến trong Netlify (mục "Nối Supabase" bước 3–4);
+  - nếu kèm `khóa công khai (publishable/anon)` hoặc `row-level security`: đã dán nhầm khóa Publishable/anon, thay bằng khóa **Secret** (`sb_secret_...`) hoặc **service_role**, rồi Trigger deploy;
   - nếu kèm `Supabase 401/403`: khóa sai, copy lại khóa secret;
   - nếu kèm `relation ... bua_an does not exist`: chưa chạy `supabase/bang.sql`;
   - nếu kèm `Unexpected token` hoặc lỗi JSON: `data/mon-an.json` sai dấu phẩy/ngoặc.

@@ -22,10 +22,26 @@ function dayDiff(a, b) {
   return Math.round((Date.parse(a + "T00:00:00Z") - Date.parse(b + "T00:00:00Z")) / 86400000);
 }
 
+function isSecretKey(key) {
+  if (key.startsWith("sb_secret_")) return true;
+  if (key.startsWith("sb_")) return false;
+  try {
+    const payload = JSON.parse(Buffer.from(key.split(".")[1], "base64url").toString("utf8"));
+    return payload.role === "service_role";
+  } catch {
+    return false;
+  }
+}
+
 async function supabase(path, init = {}) {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) throw new Error("Chưa cài SUPABASE_URL / SUPABASE_SECRET_KEY trong Netlify");
+  // Khóa công khai (publishable / anon) không vượt được RLS: đọc ra bảng trống, ghi thì bị chặn.
+  // Báo rõ ngay để khỏi tưởng là chưa có lịch sử.
+  if (!isSecretKey(key)) {
+    throw new Error("SUPABASE_SECRET_KEY trong Netlify đang là khóa công khai (publishable/anon). Cần khóa Secret (sb_secret_...) hoặc service_role");
+  }
   const headers = { apikey: key, "content-type": "application/json", ...(init.headers || {}) };
   // Khóa kiểu cũ (service_role, dạng JWT) cần thêm Authorization; khóa mới sb_secret_ thì không.
   if (!key.startsWith("sb_")) headers.authorization = "Bearer " + key;
