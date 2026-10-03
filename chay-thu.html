@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Chạy thử giờ</title>
+<style>
+  :root { --pink: #e0115f; --ink: #3a1f4d; --muted: #7a6488; --soft: #fff4f8; --line: #e9b8cf; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px 16px 40px; font-family: system-ui, -apple-system, sans-serif; color: var(--ink); background: var(--soft); line-height: 1.5; }
+  main { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  h1 { margin: 0; font-size: 24px; }
+  p { margin: 0; color: var(--muted); }
+  label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; }
+  input, select { font: inherit; font-size: 17px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); }
+  .buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  button { font: inherit; font-size: 20px; font-weight: 800; min-height: 56px; border: 0; border-radius: 14px; background: var(--pink); color: #fff; cursor: pointer; }
+  button:disabled { opacity: .5; }
+  .warn { background: #ffe3c7; color: #7a3d00; padding: 10px 12px; border-radius: 12px; }
+  pre { margin: 0; white-space: pre-wrap; word-break: break-word; background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 12px; font-size: 15px; min-height: 60px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Chạy thử giờ (chỉ Huy dùng)</h1>
+  <p>Bấm một nút để chạy ngay việc của giờ đó, không cần chờ tới chiều.</p>
+  <label>Mã chạy thử (biến HEN_GIO_MA trong Netlify)
+    <input id="ma" type="password" autocomplete="current-password">
+  </label>
+  <label>Chạy cho
+    <select id="dot">
+      <option value="">Theo hôm nay (giống chạy thật)</option>
+      <option value="thu3">Đợt thứ 3 gần nhất</option>
+      <option value="thu5">Đợt thứ 5 gần nhất</option>
+      <option value="thu7">Đợt thứ 7 gần nhất</option>
+      <option value="thuong">Ngày thường (hôm nay)</option>
+    </select>
+  </label>
+  <p class="warn">Nút 16:30 chạy thật: nếu đợt chưa chốt, app tự chọn món, lưu vào bảng và gửi Telegram. Muốn thử lại thì xóa các dòng của đợt trong Supabase → Table Editor → bua_an.</p>
+  <div class="buttons">
+    <button type="button" data-buoc="1600">16:00</button>
+    <button type="button" data-buoc="1615">16:15</button>
+    <button type="button" data-buoc="1630">16:30</button>
+  </div>
+  <pre id="kq" aria-live="polite">Kết quả hiện ở đây.</pre>
+</main>
+<script>
+(function () {
+  var ma = document.getElementById("ma"), kq = document.getElementById("kq");
+  try { ma.value = sessionStorage.getItem("hen-gio-ma") || ""; } catch (e) {}
+  document.querySelectorAll("[data-buoc]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      try { sessionStorage.setItem("hen-gio-ma", ma.value); } catch (e) {}
+      var all = document.querySelectorAll("[data-buoc]");
+      all.forEach(function (x) { x.disabled = true; });
+      kq.textContent = "Đang chạy bước " + b.textContent + "…";
+      fetch("/api/chay-thu", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ma: ma.value, buoc: b.dataset.buoc, dot: document.getElementById("dot").value })
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        kq.textContent = j.loi ? "Lỗi: " + j.loi :
+          "Bước " + b.textContent + " · " + j.loai + " · ngày " + j.ngay + "\n\n• " + j.viec.join("\n• ");
+      }).catch(function (e) { kq.textContent = "Lỗi mạng: " + e.message; })
+        .then(function () { all.forEach(function (x) { x.disabled = false; }); });
+    });
+  });
+})();
+</script>
+</body>
+</html>

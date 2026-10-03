@@ -1,6 +1,7 @@
 /* App "Mình ăn gì thế, Vợ ơi": 6 màn hình, dữ liệu món từ data/mon-an.json.
    C2: "Chốt luôn" / "Gửi lại" lưu vào Supabase qua /api/bua-an; "Vừa ăn" đọc lịch sử thật.
    C3: máy chủ lưu xong thì gửi 4 tin Telegram (Yến 1 tin, Huy 3 tin).
+   C4: nút "Bật thông báo" + sw.js để nhận thông báo 16:00 / 16:15.
    Logic chuyển màn và chọn món chép theo design/Main.dc.html. */
 (function () {
   "use strict";
@@ -222,7 +223,7 @@
       '<div class="top"><img class="logo kdc-in" src="icons/logo-400.png" alt="Logo Mình ăn gì thế, Vợ ơi" width="200" height="200">' +
       '<div class="glass box"><p class="brand">Mình ăn gì thế, Vợ ơi</p>' +
       '<h1 class="title-xl kdc-in">Vợ đi làm mệt không, hôm nay muốn ăn gì thế?</h1>' +
-      '<p class="muted">' + esc(DOT_LABEL[dot]) + "</p></div></div>" +
+      '<p class="muted">' + esc(DOT_LABEL[dot]) + "</p></div>" + notifyHtml() + "</div>" +
       '<div class="center">' + btn("Chọn món thôi", "start", "primary", "pill") + "</div></div>";
   }
 
@@ -306,11 +307,66 @@
   function viewHomNay() {
     var head = '<div class="glass head"><p class="muted">Mở từ thông báo 16:00</p><h1 class="title-xl">Hôm nay ăn gì · ' + esc(WEEKDAY[todayWd]) + "</h1>";
     if (!TODAY_MEAL || !BYID[TODAY_MEAL.man] || !BYID[TODAY_MEAL.rau]) {
-      return '<div class="page homnay">' + head + '<p class="muted">Hôm nay chưa có món nào được chốt.</p></div></div>';
+      return '<div class="page homnay">' + head + '<p class="muted">Hôm nay chưa có món nào được chốt.</p></div>' + notifyHtml() + "</div>";
     }
-    return '<div class="page homnay">' + head + "</div>" +
+    return '<div class="page homnay">' + head + "</div>" + notifyHtml() +
       '<div class="big">' + foodCard(BYID[TODAY_MEAL.man], "man", "idle", { lg: true }) + "</div>" +
       '<div class="big">' + foodCard(BYID[TODAY_MEAL.rau], "rau", "idle", { lg: true }) + "</div></div>";
+  }
+
+  /* ---------- Thông báo 16:00 (C4) ---------- */
+  /* iPhone chỉ cho app web nhận thông báo khi đã "Thêm vào MH chính" và Yến tự bấm đồng ý. */
+  var NOTI = notifyState();
+  function isStandalone() {
+    return window.navigator.standalone === true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  }
+  function notifyState() {
+    var ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    if (!("serviceWorker" in navigator) || !("Notification" in window) || !("PushManager" in window)) {
+      return ios && !isStandalone() ? "install" : "hidden";
+    }
+    if (Notification.permission === "granted") return "hidden";
+    if (Notification.permission === "denied") return "denied";
+    return "ask";
+  }
+  function notifyHtml() {
+    if (NOTI === "ask") return '<div class="notify">' + '<button type="button" class="chip-btn purple" data-act="notify">🔔 Bật thông báo 16:00</button></div>';
+    if (NOTI === "busy") return '<div class="notify"><button type="button" class="chip-btn purple" disabled>Đang bật…</button></div>';
+    if (NOTI === "install") return '<p class="notify-note">Muốn nhận thông báo 16:00: bấm nút Chia sẻ → <b>Thêm vào MH chính</b>, rồi mở app từ màn hình chính.</p>';
+    if (NOTI === "denied") return '<p class="notify-note">Thông báo đang tắt. Bật lại trong Cài đặt → Thông báo → Vợ ơi.</p>';
+    if (NOTI.indexOf("error:") === 0) {
+      return '<div class="notify"><p class="notify-note">Chưa bật được thông báo. (' + esc(NOTI.slice(6)) + ")</p>" +
+        '<button type="button" class="chip-btn purple" data-act="notify">Thử lại</button></div>';
+    }
+    return "";
+  }
+  function urlKey(b64) {
+    var pad = "=".repeat((4 - (b64.length % 4)) % 4);
+    var raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  /* Lấy (hoặc tạo) đăng ký nhận thông báo rồi gửi lên máy chủ lưu vào bảng thong_bao. */
+  function syncSubscription() {
+    return navigator.serviceWorker.ready.then(function (reg) {
+      return reg.pushManager.getSubscription().then(function (sub) {
+        if (sub) return sub;
+        return api("GET", "", null, "/api/thong-bao").then(function (j) {
+          return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlKey(j.khoa) });
+        });
+      });
+    }).then(function (sub) { return api("POST", "", sub.toJSON(), "/api/thong-bao"); });
+  }
+  function enableNotify() {
+    /* requestPermission phải gọi ngay trong lúc bấm, iPhone mới hiện hộp hỏi. */
+    var ask = Notification.requestPermission();
+    NOTI = "busy"; render(true);
+    Promise.resolve(ask).then(function (perm) {
+      if (perm !== "granted") { NOTI = perm === "denied" ? "denied" : "ask"; return; }
+      return syncSubscription().then(function () { NOTI = "hidden"; sound("ting"); });
+    }).catch(function (err) { NOTI = "error:" + err.message; })
+      .then(function () { render(true); });
   }
 
   function saveErrorHtml() {
@@ -368,6 +424,7 @@
     "to-change": function () { go("doimon", { changeDay: 0, changeGroup: null, changed: false, changedDays: [], saveError: "" }); },
     retry: function () { location.reload(); },
     "tg-retry": function () { retryTelegram(); },
+    notify: function () { enableNotify(); },
     "change-day": function (el) { update({ changeDay: Number(el.dataset.i), changeGroup: null }); },
     "change-man": function () { go("doimon", { changeGroup: "man" }); },
     "change-rau": function () { go("doimon", { changeGroup: "rau" }); },
@@ -412,12 +469,20 @@
 
   /* ---------- Khởi động: đọc 20 món từ data/mon-an.json ---------- */
   drawHearts();
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").then(function () {
+      /* Đã bật thông báo từ trước: gửi lại đăng ký cho chắc (iPhone đôi khi đổi địa chỉ). */
+      if ("Notification" in window && Notification.permission === "granted" && "PushManager" in window) {
+        syncSubscription().catch(function (err) { console.warn("Đồng bộ thông báo lỗi:", err); });
+      }
+    }).catch(function (err) { console.warn("Không đăng ký được sw.js:", err); });
+  }
   drawMute();
   function copyPicks(p) { return p.map(function (x) { return { man: x.man, rau: x.rau }; }); }
 
   /* Gọi máy chủ (Netlify Function), máy chủ mới ghi/đọc Supabase. */
-  function api(method, query, body) {
-    return fetch(API + (query || ""), {
+  function api(method, query, body, path) {
+    return fetch((path || API) + (query || ""), {
       method: method,
       cache: "no-store",
       headers: body ? { "content-type": "application/json" } : undefined,
