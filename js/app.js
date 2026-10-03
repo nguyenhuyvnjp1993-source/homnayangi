@@ -468,12 +468,11 @@
   var ACTIONS = {
     /* "Chọn món thôi": đợt này chưa chốt thì vào chọn món; đã chốt (Yến chọn hoặc app tự chọn) thì sang "Đã gửi". */
     start: function () {
-      sound("pop");
       if (S.batchDone) go("dagui", { picks: copyPicks(S.savedPicks) });
       else go("chon", { day: 0, picks: emptyPicks() });
     },
-    "pick-man": function (el) { sound("pop"); setPick(S.day, "man", el.dataset.id); render(true); },
-    "pick-rau": function (el) { sound("pop"); setPick(S.day, "rau", el.dataset.id); render(true); },
+    "pick-man": function (el) { setPick(S.day, "man", el.dataset.id); render(true); },
+    "pick-rau": function (el) { setPick(S.day, "rau", el.dataset.id); render(true); },
     "unpick-man": function () { setPick(S.day, "man", null); render(true); },
     "unpick-rau": function () { setPick(S.day, "rau", null); render(true); },
     next: function () {
@@ -499,7 +498,6 @@
     "change-pick": function (el) {
       var cd = Math.min(S.changeDay, days().length - 1), g = S.changeGroup, id = el.dataset.id;
       if (S.picks[cd][g] === id) { go("doimon", { changeGroup: null }); return; }
-      sound("pop");
       setPick(cd, g, id);
       var cds = S.changedDays.indexOf(cd) >= 0 ? S.changedDays : S.changedDays.concat([cd]);
       go("doimon", { changeGroup: null, changed: true, changedDays: cds });
@@ -516,9 +514,13 @@
   };
 
   /* Pháo giấy bắn ra từ chỗ chạm mỗi khi bấm một nút đang bật. */
+  /* Bấm nút nào đang bật cũng có tiếng: "Chốt nhé" kêu "ting", các nút khác kêu "pop".
+     Nút gửi (Chốt luôn, Gửi lại…) kêu thêm "ting" khi gửi xong. Nút tắt tiếng xử lý riêng. */
+  var TING_ON_PRESS = { next: 1 };
   app.addEventListener("click", function (e) {
     var b = e.target.closest("button");
     if (!b || b.disabled) return;
+    if (b !== muteBtn && !TING_ON_PRESS[b.dataset.act]) sound("pop");
     var root = app.getBoundingClientRect();
     var x = e.clientX || e.clientY ? e.clientX - root.left : b.getBoundingClientRect().left + b.offsetWidth / 2 - root.left;
     var y = e.clientX || e.clientY ? e.clientY - root.top : b.getBoundingClientRect().top + b.offsetHeight / 2 - root.top;
@@ -532,7 +534,7 @@
     if (fn) fn(el);
   });
 
-  muteBtn.addEventListener("click", function () { S.muted = !S.muted; drawMute(); });
+  muteBtn.addEventListener("click", function () { S.muted = !S.muted; drawMute(); sound("pop"); /* bật lại tiếng thì kêu "pop"; đang tắt thì im */ });
 
   /* ---------- Khởi động: đọc 20 món từ data/mon-an.json ---------- */
   /* ---------- 10 phút không dùng = đóng app ----------
