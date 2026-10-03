@@ -442,7 +442,8 @@
   /* ---------- Nhạc nền ----------
      File: assets/nhac-nen.mp3 (Huy tải lên; không có file thì thôi).
      Chạm vào app lần đầu thì phát một lần (không lặp) cho tới khi hết bài hoặc đóng app.
-     Gửi xong vẫn phát tiếp. Nút loa tắt/bật cả nhạc. */
+     Gửi xong vẫn phát tiếp. Nút loa tắt/bật cả nhạc. 15 giây đầu âm lượng tăng dần từ nhỏ tới đủ. */
+  var FADE_IN_S = 15;
   var MUSIC_SRC = "assets/nhac-nen.mp3";
   var music = null, musicState = "chua"; /* chua | dang-phat | tam-dung | xong */
   function makeMusic() {
@@ -458,9 +459,45 @@
   /* iPhone (iOS 17+): cho nhạc và tiếng pop phát như ứng dụng nghe nhạc, không bị tắt tiếng lẫn nhau. */
   try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
   makeMusic(); /* tải trước ngay khi mở app, chạm vào là phát được liền */
+  /* Tăng dần âm lượng. iPhone không cho chỉnh music.volume, nên cho nhạc đi qua bộ trộn âm
+     (Web Audio, chung với tiếng pop/ting) và tăng âm lượng ở đó. Phải gắn trong lúc chạm. */
+  function prepareFade(el) {
+    if (el.__gain || el.__noGain) return;
+    try {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) { el.__noGain = true; return; }
+      ac = ac || new C();
+      if (ac.state === "suspended") ac.resume();
+      var src = ac.createMediaElementSource(el), g = ac.createGain();
+      g.gain.value = 0.0001;
+      src.connect(g); g.connect(ac.destination);
+      el.__gain = g;
+    } catch (e) { el.__noGain = true; }
+    /* Bắt đầu tăng khi nhạc thật sự phát ra tiếng (đã tải xong), chỉ một lần cho cả bài. */
+    el.addEventListener("playing", function () {
+      if (el.__faded) return;
+      el.__faded = true;
+      if (el.__gain) {
+        var t = ac.currentTime, gn = el.__gain.gain;
+        gn.cancelScheduledValues(t);
+        gn.setValueAtTime(0.0001, t);
+        gn.linearRampToValueAtTime(1, t + FADE_IN_S);
+      } else {
+        /* Trình duyệt không có Web Audio: tăng music.volume (máy tính); iPhone bỏ qua bước này. */
+        var t0 = Date.now();
+        el.volume = 0;
+        var timer = setInterval(function () {
+          var k = Math.min(1, (Date.now() - t0) / (FADE_IN_S * 1000));
+          el.volume = k;
+          if (k >= 1) clearInterval(timer);
+        }, 200);
+      }
+    });
+  }
   function startMusic() {
     if (musicState !== "chua") return;
     makeMusic();
+    prepareFade(music);
     if (S.muted) { musicState = "tam-dung"; return; }
     musicState = "dang-phat";
     var p = music.play();
@@ -473,6 +510,7 @@
   function resumeMusic() {
     if (music && musicState === "tam-dung" && !S.muted && document.visibilityState === "visible") {
       musicState = "dang-phat";
+      if (ac && ac.state !== "running") ac.resume(); /* iPhone tạm ngưng bộ trộn âm khi ra màn hình chính */
       var p = music.play();
       if (p && p.catch) p.catch(function () { musicState = "tam-dung"; });
     }
