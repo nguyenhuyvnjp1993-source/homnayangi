@@ -23,6 +23,64 @@
   <div class="hearts" id="hearts" aria-hidden="true"></div>
   <button type="button" id="mute" class="mute" aria-label="Tắt tiếng" aria-pressed="false"></button>
   <main id="screen" class="screen"></main>
+  <button type="button" id="help-logo" class="help-logo" aria-label="Hướng dẫn sử dụng app" aria-haspopup="dialog"><img src="icons/logo-400.png" alt="" width="100" height="100"></button>
+  <div class="help" id="help" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
+    <div class="help-sheet">
+      <div class="help-head">
+        <h2 id="help-title">Hướng dẫn dùng app</h2>
+        <button type="button" class="help-close" id="help-close" aria-label="Đóng hướng dẫn">✕</button>
+      </div>
+      <div class="help-body">
+        <h3>🗓️ Lịch mỗi tuần</h3>
+        <ul>
+          <li><b>Thứ 3</b>: chọn món cho Thứ 3 + Thứ 4.</li>
+          <li><b>Thứ 5</b>: chọn món cho Thứ 5 + Thứ 6.</li>
+          <li><b>Thứ 7</b>: chọn món cho Thứ 7 + Chủ nhật + Thứ 2.</li>
+          <li>Mỗi ngày <b>1 món mặn + 1 món rau</b>.</li>
+          <li>Đợt mới bắt đầu lúc <b>1:00 sáng</b> thứ 3, thứ 5, thứ 7.</li>
+        </ul>
+
+        <h3>🍲 Chọn món</h3>
+        <ol>
+          <li>Bấm <b>Chọn món thôi</b>.</li>
+          <li>Bấm vào ảnh để chọn 1 món mặn và 1 món rau. Chọn xong, các món còn lại trong nhóm bị mờ.</li>
+          <li>Muốn đổi ý thì bấm <b>✕</b> ở góc món đã chọn.</li>
+          <li>Món có nhãn <b>Vừa ăn</b> là đã ăn trong 3 ngày gần nhất, không chọn được.</li>
+          <li>Đủ 2 món thì bấm <b>Chốt nhé</b> để sang ngày tiếp theo.</li>
+          <li>Màn <b>Thực đơn đợt này</b>: bấm <b>Chốt luôn</b> để gửi, hoặc <b>Khoan đã</b> để chọn lại từ đầu.</li>
+        </ol>
+
+        <h3>✉️ Sau khi chốt</h3>
+        <ul>
+          <li>Vợ nhận 1 tin Telegram (thực đơn). Huy nhận 3 tin (thực đơn, đi chợ, cách nấu).</li>
+          <li>Đã chốt rồi mà mở lại app, bấm <b>Chọn món thôi</b> sẽ thấy màn <b>Đã gửi</b>.</li>
+          <li>Muốn đổi: bấm <b>Đổi món</b> → chọn ngày → <b>Đổi</b> món mặn hoặc rau → chọn món mới → <b>Gửi lại cho Huy</b>. Tin gửi lại có ghi “(đã đổi)”.</li>
+        </ul>
+
+        <h3>⏰ Giờ nhắc</h3>
+        <ul>
+          <li><b>16:00</b>: thông báo nhắc chọn món. Ngày không đi chợ thì báo món hôm nay.</li>
+          <li><b>16:15</b>: chưa chốt thì nhắc lần 2.</li>
+          <li><b>16:30</b>: vẫn chưa chốt thì app <b>tự chọn</b> giúp và gửi tin “(app tự chọn)”. Vợ vẫn đổi món được.</li>
+          <li>Để nhận thông báo: Safari → Chia sẻ → <b>Thêm vào MH chính</b>, mở app từ màn hình chính, bấm <b>🔔 Bật thông báo 16:00</b>.</li>
+        </ul>
+
+        <h3>🔊 Âm thanh</h3>
+        <ul>
+          <li>Chạm vào app lần đầu thì nhạc nền phát, nhỏ rồi to dần.</li>
+          <li>Nút loa ở góc trên bên phải tắt / bật cả nhạc lẫn tiếng bấm nút.</li>
+          <li>iPhone đang gạt im lặng thì có thể không nghe.</li>
+        </ul>
+
+        <h3>💡 Mẹo</h3>
+        <ul>
+          <li>Để app yên 10 phút thì app tự mở lại từ đầu (món đã chốt vẫn còn).</li>
+          <li>Mỗi lần mở app, ảnh nền được đổi ngẫu nhiên.</li>
+          <li>Bấm logo này bất cứ lúc nào để xem lại hướng dẫn.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
   <div class="confetti" id="confetti" aria-hidden="true"></div>
 </div>
 <noscript>App cần bật JavaScript.</noscript>
