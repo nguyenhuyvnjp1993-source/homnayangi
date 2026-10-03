@@ -117,13 +117,15 @@ async function sendMenu(chatId, text, logoUrl) {
 // Gửi cả đợt. Trả về { ok: true } hoặc { ok: false, loi }.
 export async function sendBatch(rows, data, kieu, siteUrl) {
   const { TELEGRAM_BOT_TOKEN: token, TELEGRAM_CHAT_HUY: huy, TELEGRAM_CHAT_YEN: yen } = process.env;
-  if (!token || !huy || !yen) {
-    return { ok: false, loi: "Chưa cài TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_HUY / TELEGRAM_CHAT_YEN trong Netlify" };
+  if (!token || !huy) {
+    return { ok: false, loi: "Chưa cài TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_HUY trong Netlify" };
   }
   try {
     const m = buildMessages(rows, data, kieu);
     const logo = new URL("/icons/logo-400.png", siteUrl).toString();
-    if (String(yen) !== String(huy)) await sendMenu(yen, m.menu, logo);
+    // Chưa cài mã chat của Yến thì tạm bỏ qua tin của Yến, Huy vẫn nhận đủ 3 tin.
+    if (yen && String(yen) !== String(huy)) await sendMenu(yen, m.menu, logo);
+    else if (!yen) console.warn("Chưa có TELEGRAM_CHAT_YEN: bỏ qua tin của Yến");
     await sendMenu(huy, m.menu, logo);
     await call("sendMessage", { chat_id: huy, text: m.shop });
     for (const text of m.cook) await call("sendMessage", { chat_id: huy, text });
