@@ -441,9 +441,8 @@
   var bgEl = document.getElementById("bg");
   /* ---------- Nhạc nền ----------
      File: assets/nhac-nen.mp3 (Huy tải lên; không có file thì thôi).
-     Chạm vào app lần đầu thì phát một lần (không lặp). Dừng khi: hết bài, đóng app,
-     hoặc lúc gửi xong (Chốt luôn / Gửi lại cho Huy) – cái nào đến trước.
-     Chỉ mở xem màn "Đã gửi" (đợt đã chốt từ trước) thì nhạc vẫn phát. Nút loa tắt/bật cả nhạc. */
+     Chạm vào app lần đầu thì phát một lần (không lặp) cho tới khi hết bài hoặc đóng app.
+     Gửi xong vẫn phát tiếp. Nút loa tắt/bật cả nhạc. */
   var MUSIC_SRC = "assets/nhac-nen.mp3";
   var music = null, musicState = "chua"; /* chua | dang-phat | tam-dung | xong */
   function makeMusic() {
@@ -467,10 +466,6 @@
     var p = music.play();
     /* iPhone chưa cho phát (chưa tính là một lần chạm) thì chờ lần chạm sau. */
     if (p && p.catch) p.catch(function () { if (musicState === "dang-phat") musicState = "chua"; });
-  }
-  function stopMusic() {
-    if (music) music.pause();
-    musicState = "xong";
   }
   function pauseMusic() {
     if (music && musicState === "dang-phat") { music.pause(); musicState = "tam-dung"; }
@@ -533,7 +528,7 @@
     },
     confirm: function () {
       var list = days().map(function (w, i) { return { ngay: addDays(startDate, i), man: S.picks[i].man, rau: S.picks[i].rau }; });
-      save(list, false, function () { stopMusic(); sound("ting"); go("dagui", { sentChanged: false }); });
+      save(list, false, function () { sound("ting"); go("dagui", { sentChanged: false }); });
     },
     wait: function () { go("chon", { day: 0, picks: emptyPicks() }); },
     "to-change": function () { go("doimon", { changeDay: 0, changeGroup: null, changed: false, changedDays: [], saveError: "" }); },
@@ -554,7 +549,7 @@
     resend: function () {
       if (!S.changed) return;
       var list = S.changedDays.map(function (i) { return { ngay: addDays(startDate, i), man: S.picks[i].man, rau: S.picks[i].rau }; });
-      save(list, true, function () { stopMusic(); sound("ting"); go("dagui", { sentChanged: true, changeGroup: null }); });
+      save(list, true, function () { sound("ting"); go("dagui", { sentChanged: true, changeGroup: null }); });
     },
     keep: function () {
       /* Bỏ các thay đổi chưa gửi: lấy lại món đã lưu. */
