@@ -1,0 +1,15 @@
+# App tĩnh, không có bước build: Netlify đưa thẳng thư mục gốc lên mạng.
+[build]
+  publish = "."
+  command = ""
+
+# Luôn lấy bản mới nhất của dữ liệu món và code, tránh iPhone giữ bản cũ.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
