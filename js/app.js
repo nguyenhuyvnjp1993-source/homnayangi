@@ -422,7 +422,6 @@
     var top = keepScroll && old ? old.scrollTop : 0;
     screenEl.innerHTML = VIEWS[S.screen]();
     drawBg(S.screen);
-    if (S.screen === "dagui") stopMusic(); /* đã gửi rồi nhé → tắt nhạc nền */
     var sc = screenEl.querySelector(".scroll");
     if (sc) sc.scrollTop = top;
     drawMute();
@@ -443,18 +442,26 @@
   /* ---------- Nhạc nền ----------
      File: assets/nhac-nen.mp3 (Huy tải lên; không có file thì thôi).
      Chạm vào app lần đầu thì phát một lần (không lặp). Dừng khi: hết bài, đóng app,
-     hoặc tới màn "Đã gửi cho Huy rồi nhé" – cái nào đến trước. Nút loa tắt/bật cả nhạc. */
+     hoặc lúc gửi xong (Chốt luôn / Gửi lại cho Huy) – cái nào đến trước.
+     Chỉ mở xem màn "Đã gửi" (đợt đã chốt từ trước) thì nhạc vẫn phát. Nút loa tắt/bật cả nhạc. */
   var MUSIC_SRC = "assets/nhac-nen.mp3";
   var music = null, musicState = "chua"; /* chua | dang-phat | tam-dung | xong */
+  function makeMusic() {
+    if (music) return;
+    music = new Audio();
+    music.preload = "auto";
+    music.setAttribute("playsinline", "");
+    music.addEventListener("ended", function () { musicState = "xong"; });
+    /* Lỗi tải file: cho thử lại ở lần chạm sau. */
+    music.addEventListener("error", function () { if (musicState !== "xong") { musicState = "chua"; music = null; } });
+    music.src = MUSIC_SRC;
+  }
+  /* iPhone (iOS 17+): cho nhạc và tiếng pop phát như ứng dụng nghe nhạc, không bị tắt tiếng lẫn nhau. */
+  try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
+  makeMusic(); /* tải trước ngay khi mở app, chạm vào là phát được liền */
   function startMusic() {
     if (musicState !== "chua") return;
-    if (!music) {
-      music = new Audio(MUSIC_SRC);
-      music.preload = "auto";
-      music.volume = 0.6;
-      music.addEventListener("ended", function () { musicState = "xong"; });
-      music.addEventListener("error", function () { musicState = "xong"; });
-    }
+    makeMusic();
     if (S.muted) { musicState = "tam-dung"; return; }
     musicState = "dang-phat";
     var p = music.play();
@@ -475,7 +482,7 @@
       if (p && p.catch) p.catch(function () { musicState = "tam-dung"; });
     }
   }
-  ["touchend", "click"].forEach(function (ev) { document.addEventListener(ev, startMusic, true); });
+  ["touchend", "pointerup", "click", "keydown"].forEach(function (ev) { document.addEventListener(ev, startMusic, true); });
   /* Ra màn hình chính / khóa máy: tạm dừng; mở lại app thì phát tiếp. */
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible") resumeMusic(); else pauseMusic();
@@ -526,7 +533,7 @@
     },
     confirm: function () {
       var list = days().map(function (w, i) { return { ngay: addDays(startDate, i), man: S.picks[i].man, rau: S.picks[i].rau }; });
-      save(list, false, function () { sound("ting"); go("dagui", { sentChanged: false }); });
+      save(list, false, function () { stopMusic(); sound("ting"); go("dagui", { sentChanged: false }); });
     },
     wait: function () { go("chon", { day: 0, picks: emptyPicks() }); },
     "to-change": function () { go("doimon", { changeDay: 0, changeGroup: null, changed: false, changedDays: [], saveError: "" }); },
@@ -547,7 +554,7 @@
     resend: function () {
       if (!S.changed) return;
       var list = S.changedDays.map(function (i) { return { ngay: addDays(startDate, i), man: S.picks[i].man, rau: S.picks[i].rau }; });
-      save(list, true, function () { sound("ting"); go("dagui", { sentChanged: true, changeGroup: null }); });
+      save(list, true, function () { stopMusic(); sound("ting"); go("dagui", { sentChanged: true, changeGroup: null }); });
     },
     keep: function () {
       /* Bỏ các thay đổi chưa gửi: lấy lại món đã lưu. */
