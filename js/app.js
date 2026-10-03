@@ -1,5 +1,6 @@
-/* App "Mình ăn gì thế, Vợ ơi" – chặng C1: 6 màn hình, dữ liệu từ data/mon-an.json.
-   Chưa lưu, chưa gửi Telegram (chặng C2, C3).
+/* App "Mình ăn gì thế, Vợ ơi": 6 màn hình, dữ liệu món từ data/mon-an.json.
+   C2: "Chốt luôn" / "Gửi lại" lưu vào Supabase qua /api/bua-an; "Vừa ăn" đọc lịch sử thật.
+   Chưa gửi Telegram (chặng C3).
    Logic chuyển màn và chọn món chép theo design/Main.dc.html. */
 (function () {
   "use strict";
@@ -13,10 +14,12 @@
   var WEEKDAY = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
   /* Ngày đi chợ theo thứ trong tuần (0 = Chủ nhật). */
   var DOT_BY_WEEKDAY = { 2: "thu3", 4: "thu5", 6: "thu7" };
-  /* Lịch sử món đã ăn trước đợt này: chặng C2 sẽ đọc từ Supabase. Bây giờ để trống. */
+  var DOT_WD = { thu3: 2, thu5: 4, thu7: 6 };
+  var API = "/api/bua-an";
+  /* Lịch sử món đã ăn trong 3 ngày trước đợt này (ago = số ngày trước ngày 1), đọc từ Supabase. */
   var HISTORY = [];
-  /* Màn "Hôm nay ăn gì" dùng 2 món mẫu cho tới khi có dữ liệu đã lưu (chặng C2). */
-  var SAMPLE_TODAY = { man: "M1", rau: "R4" };
+  /* Món đã lưu cho hôm nay, dùng ở màn "Hôm nay ăn gì". */
+  var TODAY_MEAL = null;
 
   var DISHES = [], BYID = {};
   var app = document.getElementById("app");
@@ -29,6 +32,9 @@
   var dot = DAYS[params.get("dot")] ? params.get("dot") : (DOT_BY_WEEKDAY[todayWd] || "thu3");
   var isMarketDay = !!DAYS[params.get("dot")] || !!DOT_BY_WEEKDAY[todayWd];
   var firstScreen = params.get("xem") === "homnay" || !isMarketDay ? "homnay" : "chao";
+  /* Ngày của đợt: ngày đi chợ là hôm nay; link thử ?dot= thì lấy ngày có thứ đó gần nhất (hôm nay hoặc sắp tới). */
+  var todayStr = dateJST();
+  var startDate = addDays(todayStr, ((DOT_WD[dot] - todayWd) + 7) % 7);
 
   var S = {
     screen: firstScreen,
@@ -39,7 +45,9 @@
     changeGroup: null,
     changed: false,
     changedDays: [],
-    sentChanged: false
+    sentChanged: false,
+    saving: false,
+    saveError: ""
   };
 
   /* ---------- Tiện ích ---------- */
@@ -47,6 +55,14 @@
     var name = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Tokyo", weekday: "short" }).format(new Date());
     return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(name);
   }
+  function dateJST() {
+    return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(new Date());
+  }
+  function addDays(ymd, n) {
+    var d = new Date(Date.parse(ymd + "T00:00:00Z") + n * 86400000);
+    return d.toISOString().slice(0, 10);
+  }
+  function dayDiff(a, b) { return Math.round((Date.parse(a + "T00:00:00Z") - Date.parse(b + "T00:00:00Z")) / 86400000); }
   function days() { return DAYS[dot]; }
   function emptyPicks() { return DAYS[dot].map(function () { return { man: null, rau: null }; }); }
   function esc(s) {
@@ -237,7 +253,8 @@
     return '<div class="page xacnhan">' +
       '<div class="glass head"><h1 class="title-lg">Thực đơn đợt này</h1><p class="muted">' + esc(DOT_LABEL[dot]) + "</p></div>" +
       '<div class="scroll">' + list + "</div>" +
-      '<div class="glass foot">' + btn("Chốt luôn", "confirm", "primary", "rect") + btn("Khoan đã", "wait", "secondary", "rect") + "</div></div>";
+      '<div class="glass foot">' + saveErrorHtml() + btn(S.saving ? "Đang lưu…" : "Chốt luôn", "confirm", "primary", "rect", S.saving) +
+      btn("Khoan đã", "wait", "secondary", "rect", S.saving) + "</div></div>";
   }
 
   function viewDaGui() {
@@ -273,15 +290,22 @@
       '<div class="glass head"><h1 class="title-lg">Đổi món</h1><p class="muted">Chọn ngày muốn đổi trong đợt này</p></div>' +
       '<div class="chips">' + chips + "</div>" +
       '<div class="scroll">' + body + "</div>" +
-      '<div class="bottom-bar">' + btn("Gửi lại cho Huy", "resend", "primary", "rect", !S.changed) + btn("Giữ nguyên", "keep", "ghost", "rect") + "</div></div>";
+      '<div class="bottom-bar">' + saveErrorHtml() + btn(S.saving ? "Đang lưu…" : "Gửi lại cho Huy", "resend", "primary", "rect", !S.changed || S.saving) +
+      btn("Giữ nguyên", "keep", "ghost", "rect", S.saving) + "</div></div>";
   }
 
   function viewHomNay() {
-    return '<div class="page homnay">' +
-      '<div class="glass head"><p class="muted">Mở từ thông báo 16:00</p><h1 class="title-xl">Hôm nay ăn gì · ' + esc(WEEKDAY[todayWd]) + "</h1>" +
-      '<p class="muted">(Món mẫu. Chặng sau sẽ hiện món đã chốt thật.)</p></div>' +
-      '<div class="big">' + foodCard(BYID[SAMPLE_TODAY.man], "man", "idle", { lg: true }) + "</div>" +
-      '<div class="big">' + foodCard(BYID[SAMPLE_TODAY.rau], "rau", "idle", { lg: true }) + "</div></div>";
+    var head = '<div class="glass head"><p class="muted">Mở từ thông báo 16:00</p><h1 class="title-xl">Hôm nay ăn gì · ' + esc(WEEKDAY[todayWd]) + "</h1>";
+    if (!TODAY_MEAL || !BYID[TODAY_MEAL.man] || !BYID[TODAY_MEAL.rau]) {
+      return '<div class="page homnay">' + head + '<p class="muted">Hôm nay chưa có món nào được chốt.</p></div></div>';
+    }
+    return '<div class="page homnay">' + head + "</div>" +
+      '<div class="big">' + foodCard(BYID[TODAY_MEAL.man], "man", "idle", { lg: true }) + "</div>" +
+      '<div class="big">' + foodCard(BYID[TODAY_MEAL.rau], "rau", "idle", { lg: true }) + "</div></div>";
+  }
+
+  function saveErrorHtml() {
+    return S.saveError ? '<p class="save-error" role="alert">' + esc(S.saveError) + "</p>" : "";
   }
 
   var VIEWS = { chao: viewChao, chon: viewChon, xacnhan: viewXacNhan, dagui: viewDaGui, doimon: viewDoiMon, homnay: viewHomNay };
@@ -327,9 +351,13 @@
       if (S.day < days().length - 1) go("chon", { day: S.day + 1 });
       else go("xacnhan");
     },
-    confirm: function () { sound("ting"); go("dagui", { sentChanged: false }); },
+    confirm: function () {
+      var list = days().map(function (w, i) { return { ngay: addDays(startDate, i), man: S.picks[i].man, rau: S.picks[i].rau }; });
+      save(list, false, function () { sound("ting"); go("dagui", { sentChanged: false }); });
+    },
     wait: function () { go("chon", { day: 0, picks: emptyPicks() }); },
-    "to-change": function () { go("doimon", { changeDay: 0, changeGroup: null, changed: false, changedDays: [] }); },
+    "to-change": function () { go("doimon", { changeDay: 0, changeGroup: null, changed: false, changedDays: [], saveError: "" }); },
+    retry: function () { location.reload(); },
     "change-day": function (el) { update({ changeDay: Number(el.dataset.i), changeGroup: null }); },
     "change-man": function () { go("doimon", { changeGroup: "man" }); },
     "change-rau": function () { go("doimon", { changeGroup: "rau" }); },
@@ -342,8 +370,15 @@
       var cds = S.changedDays.indexOf(cd) >= 0 ? S.changedDays : S.changedDays.concat([cd]);
       go("doimon", { changeGroup: null, changed: true, changedDays: cds });
     },
-    resend: function () { if (!S.changed) return; sound("ting"); go("dagui", { sentChanged: true, changeGroup: null }); },
-    keep: function () { go("dagui", { changeGroup: null }); }
+    resend: function () {
+      if (!S.changed) return;
+      var list = S.changedDays.map(function (i) { return { ngay: addDays(startDate, i), man: S.picks[i].man, rau: S.picks[i].rau }; });
+      save(list, true, function () { sound("ting"); go("dagui", { sentChanged: true, changeGroup: null }); });
+    },
+    keep: function () {
+      /* Bỏ các thay đổi chưa gửi: lấy lại món đã lưu. */
+      go("dagui", { changeGroup: null, picks: S.savedPicks ? copyPicks(S.savedPicks) : S.picks, saveError: "" });
+    }
   };
 
   /* Pháo giấy bắn ra từ chỗ chạm mỗi khi bấm một nút đang bật. */
@@ -368,14 +403,77 @@
   /* ---------- Khởi động: đọc 20 món từ data/mon-an.json ---------- */
   drawHearts();
   drawMute();
+  function copyPicks(p) { return p.map(function (x) { return { man: x.man, rau: x.rau }; }); }
+
+  /* Gọi máy chủ (Netlify Function), máy chủ mới ghi/đọc Supabase. */
+  function api(method, query, body) {
+    return fetch(API + (query || ""), {
+      method: method,
+      cache: "no-store",
+      headers: body ? { "content-type": "application/json" } : undefined,
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) throw new Error(j.loi || "Máy chủ lỗi " + r.status);
+        return j;
+      });
+    });
+  }
+
+  function save(list, doi, done) {
+    if (S.saving) return;
+    update({ saving: true, saveError: "" });
+    api("POST", "", { ngay: list, doi: doi })
+      .then(function () {
+        S.saving = false;
+        S.savedPicks = copyPicks(S.picks);
+        done();
+      })
+      .catch(function (err) {
+        update({ saving: false, saveError: "Chưa lưu được, Vợ bấm lại nhé. (" + err.message + ")" });
+      });
+  }
+
+  /* Ngày đi chợ: đọc 3 ngày trước đợt (cho "Vừa ăn") và các ngày của đợt (nếu đã chốt rồi).
+     Ngày khác: đọc món của hôm nay. */
+  function loadMeals() {
+    if (S.screen === "homnay") {
+      return api("GET", "?tu=" + todayStr + "&den=" + todayStr).then(function (j) {
+        TODAY_MEAL = j.ngay && j.ngay[0] ? j.ngay[0] : null;
+      });
+    }
+    var n = days().length;
+    return api("GET", "?tu=" + addDays(startDate, -3) + "&den=" + addDays(startDate, n - 1)).then(function (j) {
+      var batch = [];
+      HISTORY = [];
+      (j.ngay || []).forEach(function (r) {
+        var off = dayDiff(r.ngay, startDate);
+        if (off < 0) HISTORY.push({ ago: -off, ids: [r.man, r.rau] });
+        else if (off < n) batch[off] = { man: r.man, rau: r.rau };
+      });
+      var full = batch.length === n && batch.every(function (p) { return p && BYID[p.man] && BYID[p.rau]; });
+      if (full) {
+        /* Đợt này đã chốt rồi: mở thẳng màn "Đã gửi" để Vợ đổi món nếu muốn, không chọn lại từ đầu. */
+        S.picks = batch;
+        S.savedPicks = copyPicks(batch);
+        S.screen = "dagui";
+      }
+    });
+  }
+
+  function showLoadError(msg) {
+    screenEl.innerHTML = '<div class="page error"><div class="glass box"><h1 class="title-lg">Chưa tải được dữ liệu</h1>' +
+      '<p class="muted">Kiểm tra mạng rồi thử lại nhé. (' + esc(msg) + ")</p></div>" +
+      '<div class="center">' + btn("Thử lại", "retry", "primary", "pill") + "</div></div>";
+  }
+
   fetch("data/mon-an.json", { cache: "no-cache" })
     .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function (list) {
       DISHES = list;
       list.forEach(function (d) { BYID[d.id] = d; });
-      render(false);
+      return loadMeals();
     })
-    .catch(function (err) {
-      screenEl.innerHTML = '<div class="error glass"><h1 class="title-lg">Không tải được danh sách món</h1><p class="muted">Kiểm tra mạng rồi mở lại app nhé. (' + esc(err.message) + ")</p></div>";
-    });
+    .then(function () { render(false); })
+    .catch(function (err) { showLoadError(err.message); });
 })();
