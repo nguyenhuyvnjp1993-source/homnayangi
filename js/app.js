@@ -2,6 +2,7 @@
    C2: "Chốt luôn" / "Gửi lại" lưu vào Supabase qua /api/bua-an; "Vừa ăn" đọc lịch sử thật.
    C3: máy chủ lưu xong thì gửi 4 tin Telegram (Yến 1 tin, Huy 3 tin).
    C4: nút "Bật thông báo" + sw.js để nhận thông báo 16:00 / 16:15.
+   C5: ảnh nền (xáo thứ tự mỗi lần mở app), ảnh món, âm thanh từ file – danh sách ở data/tai-nguyen.json.
    Logic chuyển màn và chọn món chép theo design/Main.dc.html. */
 (function () {
   "use strict";
@@ -23,6 +24,10 @@
   var TODAY_MEAL = null;
 
   var DISHES = [], BYID = {};
+  /* Ảnh và âm thanh Huy thêm vào (tools/xu-ly-anh.sh tạo danh sách). Thiếu thì app dùng khung màu / âm tạo bằng code. */
+  var RES = { nen: [], mon: {}, am_thanh: {} };
+  var SCREENS = ["chao", "chon", "xacnhan", "dagui", "doimon", "homnay"];
+  var BG_OF = {};
   var app = document.getElementById("app");
   var screenEl = document.getElementById("screen");
   var muteBtn = document.getElementById("mute");
@@ -81,6 +86,16 @@
 
   /* ---------- Âm thanh (tạo bằng Web Audio như design) ---------- */
   var ac = null;
+  /* Âm thanh từ file (assets/pop.mp3, assets/ting.mp3) nếu Huy có thêm; nạp một lần, chưa nạp xong thì dùng âm tạo bằng code. */
+  var buffers = {}, loading = {};
+  function loadSound(kind) {
+    var src = RES.am_thanh && RES.am_thanh[kind];
+    if (!src || loading[kind]) return;
+    loading[kind] = true;
+    fetch(src).then(function (r) { return r.arrayBuffer(); }).then(function (data) {
+      return new Promise(function (ok, fail) { ac.decodeAudioData(data, ok, fail); });
+    }).then(function (buf) { buffers[kind] = buf; }).catch(function (e) { console.warn("Không nạp được " + src, e); });
+  }
   function sound(kind) {
     if (S.muted) return;
     try {
@@ -88,6 +103,14 @@
       if (!C) return;
       ac = ac || new C();
       if (ac.state === "suspended") ac.resume();
+      loadSound("pop"); loadSound("ting");
+      if (buffers[kind]) {
+        var src = ac.createBufferSource();
+        src.buffer = buffers[kind];
+        src.connect(ac.destination);
+        src.start();
+        return;
+      }
       var t = ac.currentTime;
       if (kind === "pop") {
         var o = ac.createOscillator(), g = ac.createGain();
@@ -187,7 +210,7 @@
     var h = '<div class="card ' + group + " " + st + (opts.lg ? " lg" : "") + '">';
     h += '<button type="button" class="hit' + (opts.lg ? "" : " kdc-bounce") + '"' + (blocked || opts.lg ? " disabled" : "") +
       ' aria-pressed="' + (st === "selected") + '"' + (opts.act && !blocked ? ' data-act="' + opts.act + '" data-id="' + esc(d.id) + '"' : "") + ">";
-    h += '<span class="ph"><i class="plate" aria-hidden="true"></i></span>';
+    h += '<span class="ph">' + (d && RES.mon[d.id] ? '<img src="' + esc(RES.mon[d.id]) + '" alt="" width="600" height="600" loading="lazy">' : '<i class="plate" aria-hidden="true"></i>') + "</span>";
     h += '<span class="nm">' + esc(nm.main) + "</span>";
     if (nm.sub) h += '<span class="sub" lang="ja">' + esc(nm.sub) + "</span>";
     h += "</button>";
@@ -211,9 +234,13 @@
     }).join("");
   }
 
+  function thumbImg(id, fallback) {
+    return id && RES.mon[id] ? '<img src="' + esc(RES.mon[id]) + '" alt="" width="600" height="600">' : fallback;
+  }
+
   function dishLine(id, group, thumbClass) {
     var n = info(id);
-    return '<div class="dish-row"><div class="thumb ' + group + (thumbClass || "") + '" aria-hidden="true"><i></i></div><div class="dish-name">' +
+    return '<div class="dish-row"><div class="thumb ' + group + (thumbClass || "") + '" aria-hidden="true">' + thumbImg(id, "<i></i>") + '</div><div class="dish-name">' +
       '<span class="main">' + esc(n.main) + "</span>" + (n.sub ? '<span class="ja" lang="ja">' + esc(n.sub) + "</span>" : "") + "</div></div>";
   }
 
@@ -285,7 +312,7 @@
       var p = S.picks[cd];
       var row = function (id, group, label, act) {
         var n = info(id);
-        return '<div class="glass-card cur"><div class="thumb ' + group + '" aria-hidden="true"></div><div class="dish-name"><span class="lbl">' + label + "</span>" +
+        return '<div class="glass-card cur"><div class="thumb ' + group + '" aria-hidden="true">' + thumbImg(id, "") + '</div><div class="dish-name"><span class="lbl">' + label + "</span>" +
           '<span class="main">' + esc(n.main) + "</span>" + (n.sub ? '<span class="ja" lang="ja">' + esc(n.sub) + "</span>" : "") + "</div>" +
           '<button type="button" class="chip-btn purple" data-act="' + act + '">Đổi</button></div>';
       };
@@ -380,10 +407,31 @@
     var old = screenEl.querySelector(".scroll");
     var top = keepScroll && old ? old.scrollTop : 0;
     screenEl.innerHTML = VIEWS[S.screen]();
+    drawBg(S.screen);
     var sc = screenEl.querySelector(".scroll");
     if (sc) sc.scrollTop = top;
     drawMute();
   }
+  /* Ảnh nền: mỗi lần mở app xáo ngẫu nhiên, màn nào nhận ảnh nào. */
+  function shuffleBackgrounds() {
+    var list = RES.nen.slice();
+    for (var i = list.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1)), t = list[i];
+      list[i] = list[j]; list[j] = t;
+    }
+    BG_OF = {};
+    if (!list.length) return;
+    SCREENS.forEach(function (s, k) { BG_OF[s] = list[k % list.length]; });
+    list.forEach(function (src) { new Image().src = src; }); /* tải trước để chuyển màn không bị trắng */
+  }
+  var bgEl = document.getElementById("bg");
+  function drawBg(screen) {
+    var src = BG_OF[screen] || BG_OF.chao;
+    if (!src) { bgEl.hidden = true; return; }
+    if (bgEl.getAttribute("src") !== src) bgEl.setAttribute("src", src);
+    bgEl.hidden = false;
+  }
+
   function go(screen, extra) {
     S.screen = screen;
     if (extra) Object.keys(extra).forEach(function (k) { S[k] = extra[k]; });
@@ -558,13 +606,22 @@
   }
 
   function showLoadError(msg) {
+    drawBg("chao");
     screenEl.innerHTML = '<div class="page error"><div class="glass box"><h1 class="title-lg">Chưa tải được dữ liệu</h1>' +
       '<p class="muted">Kiểm tra mạng rồi thử lại nhé. (' + esc(msg) + ")</p></div>" +
       '<div class="center">' + btn("Thử lại", "retry", "primary", "pill") + "</div></div>";
   }
 
-  fetch("data/mon-an.json", { cache: "no-cache" })
-    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  /* Danh sách ảnh/âm thanh: thiếu hoặc lỗi cũng không sao, app vẫn chạy với khung màu. */
+  var resReady = fetch("data/tai-nguyen.json", { cache: "no-cache" })
+    .then(function (r) { return r.ok ? r.json() : {}; })
+    .catch(function () { return {}; })
+    .then(function (j) {
+      RES = { nen: j.nen || [], mon: j.mon || {}, am_thanh: j.am_thanh || {} };
+      shuffleBackgrounds();
+    });
+  Promise.all([fetch("data/mon-an.json", { cache: "no-cache" }), resReady])
+    .then(function (res) { var r = res[0]; if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function (list) {
       DISHES = list;
       list.forEach(function (d) { BYID[d.id] = d; });

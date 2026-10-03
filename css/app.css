@@ -70,6 +70,8 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
   background: radial-gradient(120% 70% at 50% 0%, #ffe3f0 0%, var(--bg-candy) 55%, #fff0dc 100%);
 }
 .screen { position: relative; z-index: 1; height: 100%; }
+/* Ảnh nền từng màn (C5): phủ kín màn hình, neo đáy như design. */
+.bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; pointer-events: none; }
 .page { height: 100%; display: flex; flex-direction: column; }
 
 /* Nút tắt tiếng */
@@ -150,6 +152,8 @@ h1, h2, p { margin: 0; }
 .card.man .ph { background: var(--pink-soft); }
 .card.rau .ph { background: var(--teal-soft); }
 .card .ph img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.thumb { overflow: hidden; }
+.thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .card .plate { width: 56%; aspect-ratio: 1 / 1; border-radius: var(--radius-pill); background: var(--surface); opacity: .7; box-shadow: inset 0 0 0 10px var(--bg-candy); }
 .card .nm { display: block; font-family: var(--font-display); font-size: 18px; line-height: 24px; font-weight: 800; margin: var(--space-2) var(--space-1) 0; text-wrap: balance; overflow-wrap: anywhere; }
 .card .sub { display: block; font-family: var(--font-ja); font-size: 16px; line-height: 20px; font-weight: 700; color: var(--ink-muted); margin: 2px var(--space-1) 0; }
