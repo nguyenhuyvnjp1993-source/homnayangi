@@ -10,10 +10,9 @@ App: https://homnayangivooi.netlify.app
 - [x] **C2** – Lưu vào Supabase, "Vừa ăn" đọc lịch sử thật.
 - [x] **C3** – Bot Telegram gửi 4 tin, "Đổi món" gửi lại.
 - [x] **C4** – Thông báo 16:00, nhắc 16:15, tự chọn 16:30, trang chạy thử giờ.
-- [x] **C5** – 20 ảnh món thật, ảnh nền xáo mỗi lần mở app, 10 phút không dùng thì mở lại từ đầu, README hoàn chỉnh.
+- [x] **C5** – 20 ảnh món thật, 6 ảnh nền xáo mỗi lần mở app, 10 phút không dùng thì mở lại từ đầu, README hoàn chỉnh.
 
 **Việc còn treo:**
-- [ ] Tải 6 ảnh nền lên `assets/nen/`, rồi nhờ Claude nén (xem mục "Thêm, đổi ảnh và âm thanh").
 - [ ] Yến bấm Start với bot, sau đó thêm biến `TELEGRAM_CHAT_YEN`.
 - [ ] Trên iPhone của Yến: Thêm vào MH chính → Bật thông báo → thử bằng trang chạy thử.
 
