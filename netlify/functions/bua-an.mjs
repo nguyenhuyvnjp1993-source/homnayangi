@@ -30,7 +30,7 @@ export default async (req) => {
       // tu/den: ngày đầu và ngày cuối của cả đợt, để soạn tin Telegram cho đủ các ngày.
       const { tu, den } = body;
       if (!DATE.test(tu || "") || !DATE.test(den || "") || dayDiff(den, tu) < 0 || dayDiff(den, tu) > 2 ||
-          dayDiff(tu, today) < -1 || dayDiff(den, today) > 8) {
+          dayDiff(tu, today) < -3 || dayDiff(den, today) > 8) {
         return json(400, { loi: "Ngày của đợt không hợp lệ" });
       }
 

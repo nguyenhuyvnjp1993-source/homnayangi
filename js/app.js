@@ -35,12 +35,23 @@
 
   var params = new URLSearchParams(location.search);
   var todayWd = weekdayJST();
-  var dot = DAYS[params.get("dot")] ? params.get("dot") : (DOT_BY_WEEKDAY[todayWd] || "thu3");
-  var isMarketDay = !!DAYS[params.get("dot")] || !!DOT_BY_WEEKDAY[todayWd];
-  var firstScreen = params.get("xem") === "homnay" || !isMarketDay ? "homnay" : "chao";
-  /* Ngày của đợt: ngày đi chợ là hôm nay; link thử ?dot= thì lấy ngày có thứ đó gần nhất (hôm nay hoặc sắp tới). */
   var todayStr = dateJST();
-  var startDate = addDays(todayStr, ((DOT_WD[dot] - todayWd) + 7) % 7);
+  /* Đợt hiện tại: đợt bắt đầu lúc 1:00 sáng thứ 3, thứ 5, thứ 7 (giờ Nhật) gần nhất.
+     Ví dụ thứ 4 vẫn thuộc đợt thứ 3; 0:30 sáng thứ 3 vẫn thuộc đợt thứ 7 trước đó.
+     Link thử ?dot= thì lấy ngày có thứ đó gần nhất (hôm nay hoặc sắp tới). */
+  var dot, startDate;
+  if (DAYS[params.get("dot")]) {
+    dot = params.get("dot");
+    startDate = addDays(todayStr, ((DOT_WD[dot] - todayWd) + 7) % 7);
+  } else {
+    var resetDay = dateJST(Date.now() - 60 * 60 * 1000); /* lùi 1 giờ: mốc đổi đợt là 1:00 sáng */
+    var back = 0;
+    while (!DOT_BY_WEEKDAY[new Date(Date.parse(addDays(resetDay, -back) + "T00:00:00Z")).getUTCDay()]) back++;
+    startDate = addDays(resetDay, -back);
+    dot = DOT_BY_WEEKDAY[new Date(Date.parse(startDate + "T00:00:00Z")).getUTCDay()];
+  }
+  /* Mở app luôn vào màn 1 (Chào). Riêng thông báo 16:00 ngày thường mở thẳng "Hôm nay ăn gì" (?xem=homnay). */
+  var firstScreen = params.get("xem") === "homnay" ? "homnay" : "chao";
 
   var S = {
     screen: firstScreen,
@@ -62,8 +73,8 @@
     var name = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Tokyo", weekday: "short" }).format(new Date());
     return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(name);
   }
-  function dateJST() {
-    return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(new Date());
+  function dateJST(ms) {
+    return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(ms ? new Date(ms) : new Date());
   }
   function addDays(ymd, n) {
     var d = new Date(Date.parse(ymd + "T00:00:00Z") + n * 86400000);
@@ -455,7 +466,12 @@
 
   /* ---------- Xử lý bấm ---------- */
   var ACTIONS = {
-    start: function () { sound("pop"); go("chon", { day: 0, picks: emptyPicks() }); },
+    /* "Chọn món thôi": đợt này chưa chốt thì vào chọn món; đã chốt (Yến chọn hoặc app tự chọn) thì sang "Đã gửi". */
+    start: function () {
+      sound("pop");
+      if (S.batchDone) go("dagui", { picks: copyPicks(S.savedPicks) });
+      else go("chon", { day: 0, picks: emptyPicks() });
+    },
     "pick-man": function (el) { sound("pop"); setPick(S.day, "man", el.dataset.id); render(true); },
     "pick-rau": function (el) { sound("pop"); setPick(S.day, "rau", el.dataset.id); render(true); },
     "unpick-man": function () { setPick(S.day, "man", null); render(true); },
@@ -598,6 +614,7 @@
       .then(function (j) {
         S.saving = false;
         S.savedPicks = copyPicks(S.picks);
+        S.batchDone = true;
         S.tgError = j.telegram && !j.telegram.ok ? j.telegram.loi || "lỗi không rõ" : "";
         done();
       })
@@ -625,10 +642,10 @@
       });
       var full = batch.length === n && batch.every(function (p) { return p && BYID[p.man] && BYID[p.rau]; });
       if (full) {
-        /* Đợt này đã chốt rồi: mở thẳng màn "Đã gửi" để Vợ đổi món nếu muốn, không chọn lại từ đầu. */
+        /* Đợt này đã chốt rồi: vẫn mở màn Chào, bấm "Chọn món thôi" thì sang "Đã gửi" (đổi món được). */
         S.picks = batch;
         S.savedPicks = copyPicks(batch);
-        S.screen = "dagui";
+        S.batchDone = true;
       }
     });
   }
