@@ -1,0 +1,6 @@
+{
+  "_ghi_chu": "File này do tools/xu-ly-anh.sh tạo ra, không sửa tay.",
+  "nen": ["img/nen/1.jpg","img/nen/2.jpg","img/nen/3.jpg","img/nen/4.jpg","img/nen/5.jpg","img/nen/6.jpg"],
+  "mon": {"M1": "img/mon/M1.jpg","M2": "img/mon/M2.jpg","M3": "img/mon/M3.jpg","M4": "img/mon/M4.jpg","M5": "img/mon/M5.jpg","M6": "img/mon/M6.jpg","M7": "img/mon/M7.jpg","N1": "img/mon/N1.jpg","N2": "img/mon/N2.jpg","N3": "img/mon/N3.jpg","N4": "img/mon/N4.jpg","N5": "img/mon/N5.jpg","N6": "img/mon/N6.jpg","R1": "img/mon/R1.jpg","R2": "img/mon/R2.jpg","R3": "img/mon/R3.jpg","R4": "img/mon/R4.jpg","R5": "img/mon/R5.jpg","R6": "img/mon/R6.jpg","R7": "img/mon/R7.jpg"},
+  "am_thanh": { "pop": null, "ting": null }
+}
