@@ -1,0 +1,8 @@
+{
+  "name": "homnayangi",
+  "private": true,
+  "description": "App đi chợ \"Mình ăn gì thế, Vợ ơi\". Chỉ có thư viện cho code máy chủ trên Netlify; app trên iPhone không cần build.",
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}

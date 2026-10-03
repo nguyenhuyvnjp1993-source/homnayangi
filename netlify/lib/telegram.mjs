@@ -135,3 +135,15 @@ export async function sendBatch(rows, data, kieu, siteUrl) {
     return { ok: false, loi: String(e.message || e) };
   }
 }
+
+// Một tin chữ cho Yến (nhắc 16:15). Chưa cài mã chat của Yến thì bỏ qua.
+export async function sendToYen(text) {
+  const { TELEGRAM_BOT_TOKEN: token, TELEGRAM_CHAT_YEN: yen } = process.env;
+  if (!token || !yen) return { ok: false, loi: "Chưa có TELEGRAM_CHAT_YEN, bỏ qua tin Telegram cho Yến" };
+  try {
+    await call("sendMessage", { chat_id: yen, text });
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, loi: String(e.message || e) };
+  }
+}

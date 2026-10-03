@@ -7,7 +7,7 @@ Luật nghiệp vụ: `docs/brief.md`. Thiết kế: `docs/brief-thiet-ke.md` v�
 - [x] **C1** – App tĩnh trên Netlify, 6 màn hình theo design, dữ liệu từ `data/mon-an.json`. Chưa lưu, chưa gửi.
 - [x] **C2** – Lưu vào Supabase, "Vừa ăn" đọc lịch sử thật.
 - [x] **C3** – Bot Telegram gửi 4 tin, "Đổi món" gửi lại.
-- [ ] C4 – Thông báo 16:00, nhắc 16:15, tự chọn 16:30.
+- [x] **C4** – Thông báo 16:00, nhắc 16:15, tự chọn 16:30, trang chạy thử giờ.
 - [ ] C5 – Logo, âm thanh, ảnh món thật.
 
 ## Các file của app
@@ -24,6 +24,15 @@ Luật nghiệp vụ: `docs/brief.md`. Thiết kế: `docs/brief-thiet-ke.md` v�
 | `netlify/functions/telegram-id.mjs` | Trang `/api/telegram-id` để lấy mã chat; tự tắt khi đã cài đủ mã |
 | `docs/cach-nau.md` | Cách nấu 20 món – tin số 3 của Huy lấy nguyên văn từ đây (mỗi món bắt đầu bằng `### M1. ...`) |
 | `supabase/bang.sql` | Lệnh tạo bảng `bua_an`, dán vào Supabase → SQL Editor |
+| `supabase/thong-bao.sql` | Lệnh tạo bảng `thong_bao` (địa chỉ nhận thông báo của iPhone) |
+| `sw.js` | File chạy nền trên iPhone, chỉ để nhận thông báo (không lưu bản cũ của app) |
+| `netlify/functions/hen-gio.mjs` | Hẹn giờ 16:00 / 16:15 / 16:30 giờ Nhật (07:00 / 07:15 / 07:30 UTC) |
+| `netlify/lib/hen-gio.mjs` | Việc của từng giờ và luật tự chọn món |
+| `netlify/lib/thong-bao.mjs`, `netlify/functions/thong-bao.mjs` | Gửi thông báo, lưu đăng ký thông báo (`/api/thong-bao`) |
+| `netlify/functions/tao-khoa-thong-bao.mjs` | Trang `/api/tao-khoa-thong-bao` tạo khóa thông báo; tự tắt khi đã cài |
+| `chay-thu.html`, `netlify/functions/chay-thu.mjs` | Trang chạy thử giờ của Huy (cần mã `HEN_GIO_MA`) |
+| `netlify/lib/chung.mjs` | Phần dùng chung: gọi Supabase, ngày giờ Nhật |
+| `package.json` | Thư viện `web-push` cho máy chủ (Netlify tự cài) |
 
 ## Đưa lên Netlify (làm một lần)
 1. Vào https://app.netlify.com, đăng nhập bằng GitHub.
@@ -52,6 +61,25 @@ Bảng `bua_an`: mỗi ngày một dòng (`ngay`, `man`, `rau`, `nguon`, `da_doi
 
 Khi gửi: Yến bấm "Chốt luôn" → Yến 1 tin (ảnh logo + thực đơn), Huy 3 tin (thực đơn, đi chợ, cách nấu). "Gửi lại cho Huy" sau khi đổi món gửi lại cả 4 tin, có ghi "(đã đổi)".
 
+## Hẹn giờ và thông báo (làm một lần, chặng C4)
+1. Supabase → **SQL Editor** → dán toàn bộ `supabase/thong-bao.sql` → **Run**.
+2. Mở `https://homnayangivooi.netlify.app/api/tao-khoa-thong-bao` → chép **cả 2 khóa của cùng một lần mở trang** vào Netlify:
+   `VAPID_PUBLIC_KEY` và `VAPID_PRIVATE_KEY` (khóa này đánh dấu **Contains secret values**).
+3. Netlify → thêm `HEN_GIO_MA` = một mã Huy tự đặt (dùng cho trang chạy thử, đánh dấu **Contains secret values**).
+4. **Trigger deploy → Deploy project**.
+5. Trên iPhone của Yến: Safari → mở app → Chia sẻ → **Thêm vào MH chính** → mở app **từ màn hình chính** → bấm **🔔 Bật thông báo 16:00** → **Cho phép**.
+
+Việc theo giờ (giờ Nhật):
+| Giờ | Ngày đi chợ (thứ 3, 5, 7) | Ngày khác |
+| --- | --- | --- |
+| 16:00 | Thông báo "Chọn món cho đợt này nhé!" | Thông báo "Hôm nay ăn: A + B" |
+| 16:15 | Chưa chốt: nhắc lần 2 (thông báo + tin Telegram cho Yến kèm link) | — |
+| 16:30 | Chưa chốt: tự chọn (1 mặn + 1 rau mỗi ngày, không lặp 3 ngày), lưu, gửi 4 tin "(app tự chọn)" | — |
+
+Đợt nào đã chốt thì các bước trên bỏ qua. Sau 16:30 Yến vẫn "Đổi món" được, tin gửi lại ghi "(đã đổi)".
+
+**Chạy thử giờ (chỉ Huy):** mở `https://homnayangivooi.netlify.app/chay-thu.html`, nhập mã `HEN_GIO_MA`, chọn đợt, bấm 16:00 / 16:15 / 16:30. Nút 16:30 chạy thật (tự chọn, lưu, gửi Telegram).
+
 ## Kiểm trên iPhone
 - Mở địa chỉ Netlify bằng **Safari**.
 - App tự chọn màn theo thứ trong tuần (giờ Nhật): Thứ 3, 5, 7 vào màn Chào để chọn món; ngày khác vào "Hôm nay ăn gì".
@@ -61,7 +89,7 @@ Khi gửi: Yến bấm "Chốt luôn" → Yến 1 tin (ảnh logo + thực đơn
 - Cài như app: nút Chia sẻ → **Thêm vào MH chính**.
 
 ## Giới hạn hiện tại (sẽ làm ở chặng sau)
-- Chưa có thông báo 16:00, nhắc 16:15, tự chọn 16:30 (C4).
+- Thông báo web trên iPhone đôi khi đến trễ hoặc không đến; nếu không ổn định thì chuyển sang bot Telegram nhắn Yến lúc 16:00 (theo brief).
 - Ảnh món là khung màu tạm; ảnh nền từng màn trong design chưa có.
 
 ## Hỏng thì xem ở đâu
@@ -76,6 +104,10 @@ Khi gửi: Yến bấm "Chốt luôn" → Yến 1 tin (ảnh logo + thực đơn
   - `Unauthorized`: token bot sai;
   - `chat not found` hoặc `bot was blocked`: mã chat sai, hoặc người đó chưa bấm Start / đã chặn bot.
   Sửa xong bấm **Gửi lại Telegram** (món đã lưu, không cần chọn lại).
+- Không nhận thông báo 16:00:
+  - xem kết quả lần chạy: Netlify → **Logs → Functions → hen-gio** (mỗi lần chạy in ra đã làm gì);
+  - hoặc bấm 16:00 trên trang `chay-thu.html` để xem lý do (`Chưa có iPhone nào bật thông báo`, `Chưa cài VAPID...`);
+  - iPhone: app phải mở từ màn hình chính (không phải Safari), Cài đặt → Thông báo → Vợ ơi phải đang bật.
 - Tin cách nấu sai nội dung: sửa `docs/cach-nau.md` (giữ dạng `### M1. Tên món (phút)` cho mỗi món).
 - Xem lỗi máy chủ chi tiết: Netlify → **Logs → Functions → bua-an**.
 - Sai luật chọn món, chữ trên màn hình: `js/app.js`.
