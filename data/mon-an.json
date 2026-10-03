@@ -1,0 +1,256 @@
+[
+ {
+  "id": "M1",
+  "ten": "Thịt kho trứng",
+  "loai": "man",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "豚バラ ブロック",
+   "卵"
+  ],
+  "phut": 40,
+  "cach_nau": "cach-nau.md#M1"
+ },
+ {
+  "id": "M2",
+  "ten": "Gà kho gừng",
+  "loai": "man",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "鶏もも肉 唐揚げ用",
+   "生姜"
+  ],
+  "phut": 25,
+  "cach_nau": "cach-nau.md#M2"
+ },
+ {
+  "id": "M3",
+  "ten": "Tôm rim mặn ngọt",
+  "loai": "man",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "むきえび",
+   "長ねぎ"
+  ],
+  "phut": 10,
+  "cach_nau": "cach-nau.md#M3"
+ },
+ {
+  "id": "M4",
+  "ten": "Đậu hũ sốt cà chua thịt băm",
+  "loai": "man",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "木綿豆腐",
+   "豚ひき肉",
+   "トマト",
+   "長ねぎ"
+  ],
+  "phut": 15,
+  "cach_nau": "cach-nau.md#M4"
+ },
+ {
+  "id": "M5",
+  "ten": "Sườn ram mặn ngọt",
+  "loai": "man",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "豚スペアリブ 一口サイズ",
+   "にんにく"
+  ],
+  "phut": 30,
+  "cach_nau": "cach-nau.md#M5"
+ },
+ {
+  "id": "M6",
+  "ten": "Gan mề gà xào hành tây",
+  "loai": "man",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "鶏レバー",
+   "砂肝",
+   "玉ねぎ",
+   "にんにく"
+  ],
+  "phut": 15,
+  "cach_nau": "cach-nau.md#M6"
+ },
+ {
+  "id": "M7",
+  "ten": "Cá hồi áp chảo sốt nước mắm tỏi",
+  "loai": "man",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "生鮭切り身",
+   "にんにく"
+  ],
+  "phut": 15,
+  "cach_nau": "cach-nau.md#M7"
+ },
+ {
+  "id": "N1",
+  "ten": "Thịt heo xào gừng (生姜焼き)",
+  "loai": "man",
+  "am_thuc": "nhat",
+  "nguyen_lieu": [
+   "豚ロース 生姜焼き用",
+   "玉ねぎ",
+   "生姜焼きのたれ"
+  ],
+  "phut": 15,
+  "cach_nau": "cach-nau.md#N1"
+ },
+ {
+  "id": "N2",
+  "ten": "Gà sốt teriyaki (照り焼きチキン)",
+  "loai": "man",
+  "am_thuc": "nhat",
+  "nguyen_lieu": [
+   "鶏もも肉",
+   "照り焼きのたれ"
+  ],
+  "phut": 20,
+  "cach_nau": "cach-nau.md#N2"
+ },
+ {
+  "id": "N3",
+  "ten": "Cà ri Nhật (カレーライス)",
+  "loai": "man",
+  "am_thuc": "nhat",
+  "nguyen_lieu": [
+   "鶏もも肉",
+   "じゃがいも",
+   "玉ねぎ",
+   "にんじん",
+   "カレールウ"
+  ],
+  "phut": 35,
+  "cach_nau": "cach-nau.md#N3"
+ },
+ {
+  "id": "R1",
+  "ten": "Canh rong biển thịt bò",
+  "loai": "rau",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "乾燥わかめ",
+   "牛こま切れ",
+   "長ねぎ"
+  ],
+  "phut": 10,
+  "cach_nau": "cach-nau.md#R1"
+ },
+ {
+  "id": "R2",
+  "ten": "Canh móng giò hầm củ cải trắng",
+  "loai": "rau",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "豚足",
+   "大根",
+   "長ねぎ"
+  ],
+  "phut": 90,
+  "cach_nau": "cach-nau.md#R2"
+ },
+ {
+  "id": "R3",
+  "ten": "Canh cải nấu thịt băm",
+  "loai": "rau",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "小松菜",
+   "豚ひき肉"
+  ],
+  "phut": 10,
+  "cach_nau": "cach-nau.md#R3"
+ },
+ {
+  "id": "R4",
+  "ten": "Canh cà chua trứng",
+  "loai": "rau",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "トマト",
+   "卵",
+   "長ねぎ"
+  ],
+  "phut": 10,
+  "cach_nau": "cach-nau.md#R4"
+ },
+ {
+  "id": "R5",
+  "ten": "Giá hẹ xào thịt bò",
+  "loai": "rau",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "もやし",
+   "にら",
+   "牛こま切れ"
+  ],
+  "phut": 10,
+  "cach_nau": "cach-nau.md#R5"
+ },
+ {
+  "id": "R6",
+  "ten": "Bông cải xanh xào tỏi",
+  "loai": "rau",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "ブロッコリー",
+   "にんにく"
+  ],
+  "phut": 10,
+  "cach_nau": "cach-nau.md#R6"
+ },
+ {
+  "id": "R7",
+  "ten": "Bắp cải luộc chấm trứng nước mắm",
+  "loai": "rau",
+  "am_thuc": "viet",
+  "nguyen_lieu": [
+   "キャベツ",
+   "卵"
+  ],
+  "phut": 15,
+  "cach_nau": "cach-nau.md#R7"
+ },
+ {
+  "id": "N4",
+  "ten": "Canh miso đậu hũ rong biển (味噌汁)",
+  "loai": "rau",
+  "am_thuc": "nhat",
+  "nguyen_lieu": [
+   "味噌",
+   "絹豆腐",
+   "乾燥わかめ",
+   "顆粒だし"
+  ],
+  "phut": 10,
+  "cach_nau": "cach-nau.md#N4"
+ },
+ {
+  "id": "N5",
+  "ten": "Cải bó xôi trộn mè (胡麻和え)",
+  "loai": "rau",
+  "am_thuc": "nhat",
+  "nguyen_lieu": [
+   "ほうれん草",
+   "胡麻和えの素"
+  ],
+  "phut": 10,
+  "cach_nau": "cach-nau.md#N5"
+ },
+ {
+  "id": "N6",
+  "ten": "Salad củ cải trắng kiểu Nhật (大根サラダ)",
+  "loai": "rau",
+  "am_thuc": "nhat",
+  "nguyen_lieu": [
+   "大根",
+   "ごまドレッシング"
+  ],
+  "phut": 5,
+  "cach_nau": "cach-nau.md#N6"
+ }
+]

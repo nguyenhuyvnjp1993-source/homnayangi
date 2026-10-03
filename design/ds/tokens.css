@@ -1,0 +1,48 @@
+:root, [data-theme="light"] {
+  --bg-candy: #fff4f8;
+  --surface: #ffffff;
+  --ink: #3a1f4d;
+  --ink-muted: #7a6488;
+  --line: #f2d0e1;
+  --pink: #e0115f;
+  --pink-deep: #9c0a41;
+  --pink-soft: #ffd6e8;
+  --orange: #ff8a1f;
+  --orange-soft: #ffe3c7;
+  --purple: #5b2ee6;
+  --purple-deep: #3c17b0;
+  --purple-soft: #e6dcff;
+  --teal: #14c8b4;
+  --teal-soft: #ccf5ef;
+  --yellow: #ffd23f;
+  --disabled-bg: #efe6f1;
+  --disabled-ink: #7a6488;
+  --scrim: rgba(255, 244, 248, 0.72);
+  --chip-recent: #3a1f4d;
+  --glass: rgba(255, 255, 255, 0.8);
+  --shadow-pop-pink: 0 0 0 3px #ffffff, 0 7px 0 3px #9c0a41, 0 14px 24px rgba(156, 10, 65, 0.40);
+  --shadow-pop-purple: 0 0 0 3px #ffffff, 0 7px 0 3px #3c17b0, 0 14px 24px rgba(60, 23, 176, 0.36);
+  --shadow-card: 0 0 0 2px #ffffff, 0 5px 0 2px #e9b8cf, 0 12px 24px rgba(58, 31, 77, 0.18);
+  --shadow-glow: 0 0 0 4px #ffd23f, 0 6px 0 #e0a800;
+  --shadow-glass: 0 8px 24px rgba(58, 31, 77, 0.16);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+  --screen-w: 390px;
+  --screen-h: 844px;
+  --tap-min: 48px;
+  --button-h: 60px;
+  --card-w: 173px;
+  --photo-src: 1200px;
+  --font-display: "Grandstander", "Mali", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", system-ui, sans-serif;
+  --font-body: "Mali", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", system-ui, sans-serif;
+}

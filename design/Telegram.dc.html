@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tin Telegram – mẫu chữ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/minhangi/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grandstander:wght@700;800;900&family=Mali:wght@500;600;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 1600px; min-height: 2000px; box-sizing: border-box; padding: 48px; background: var(--bg-candy); color: var(--ink); font-family: var(--font-body); display: flex; flex-direction: column; gap: 32px;">
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h1 style="margin: 0; font-family: var(--font-display); font-size: 44px; line-height: 50px; font-weight: 900;">4 tin Telegram</h1>
+<p style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600; color: var(--ink-muted);">Đợt mẫu: Thứ 7 (3 ngày, 6 món) · Kiểu gửi: <strong style="color: var(--ink);">{{kieu}}</strong> · đổi kiểu ở Tweaks</p>
+</div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; max-width: 640px;">
+<span style="background: var(--surface); box-shadow: var(--shadow-card); border-radius: 12px; padding: 8px 12px; font-size: 16px; font-weight: 700;">Gửi khi: Yến bấm “Chốt luôn” · 16:30 app tự chọn · sau “Đổi món”</span>
+<span style="background: var(--surface); box-shadow: var(--shadow-card); border-radius: 12px; padding: 8px 12px; font-size: 16px; font-weight: 700;">Tin 3 tự tách nếu &gt; 4096 ký tự, mỗi tin trọn món</span>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 400px 320px minmax(0, 1fr); gap: 24px; align-items: start;">
+
+<section style="display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-family: var(--font-display); font-size: 22px; line-height: 28px; font-weight: 800; color: var(--pink);">Gửi Yến, gửi Huy · 1 tin</span>
+<span style="font-size: 16px; line-height: 20px; font-weight: 700; color: var(--ink-muted);">Tin ảnh: logo app 400×400 px + chú thích là thực đơn</span>
+</div>
+<div style="background: var(--surface); border-radius: 20px 20px 20px 6px; box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column;">
+<img src="/_blob/0641b42ec763ae6482fead2a7dd0a5e9" alt="Logo app Mình ăn gì thế, Vợ ơi" width="400" height="400" style="display: block; width: 400px; height: 400px;">
+<div style="padding: 12px 16px 14px; font-family: system-ui, -apple-system, 'Hiragino Sans', sans-serif; font-size: 15px; line-height: 22px; white-space: pre-wrap;">{{menu}}</div>
+</div>
+<span style="font-size: 16px; line-height: 20px; font-weight: 700; color: var(--ink-muted);">Chú thích {{menuLen}} / 1.024 ký tự (giới hạn chú thích ảnh của Telegram)</span>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-family: var(--font-display); font-size: 22px; line-height: 28px; font-weight: 800; color: var(--purple);">Gửi Huy · tin 2</span>
+<span style="font-size: 16px; line-height: 20px; font-weight: 700; color: var(--ink-muted);">Đi chợ: tên Nhật, gộp trùng, theo quầy</span>
+</div>
+<div style="background: var(--surface); border-radius: 20px 20px 20px 6px; box-shadow: var(--shadow-card); padding: 14px 16px; font-family: system-ui, -apple-system, 'Hiragino Sans', sans-serif; font-size: 15px; line-height: 22px; white-space: pre-wrap;">{{shop}}</div>
+<span style="font-size: 16px; line-height: 20px; font-weight: 700; color: var(--ink-muted);">{{shopCount}}</span>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-family: var(--font-display); font-size: 22px; line-height: 28px; font-weight: 800; color: var(--purple);">Gửi Huy · tin 3</span>
+<span style="font-size: 16px; line-height: 20px; font-weight: 700; color: var(--ink-muted);">{{cookInfo}}</span>
+</div>
+<sc-for list="{{cook}}" as="m" hint-placeholder-count="1">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="background: var(--surface); border-radius: 20px 20px 20px 6px; box-shadow: var(--shadow-card); padding: 14px 16px; font-family: system-ui, -apple-system, 'Hiragino Sans', sans-serif; font-size: 15px; line-height: 22px; white-space: pre-wrap;">{{m.text}}</div>
+<span style="font-size: 16px; line-height: 20px; font-weight: 700; color: var(--ink-muted);">{{m.len}}</span>
+</div>
+</sc-for>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kieu":{"editor":"enum","options":["Yến chốt","Đã đổi món","App tự chọn"],"default":"Yến chốt","section":"Mẫu tin"},"$preview":{"width":1600,"height":2000}}'>
+var TEN = { M1: "Thịt kho trứng", M2: "Gà kho gừng", M7: "Cá hồi áp chảo sốt nước mắm tỏi", N2: "Gà sốt teriyaki (照り焼きチキン)", R4: "Canh cà chua trứng", N5: "Cải bó xôi trộn mè (胡麻和え)", R6: "Bông cải xanh xào tỏi" };
+var NL = { M1: ["豚バラ ブロック", "卵"], M2: ["鶏もも肉 唐揚げ用", "生姜"], M7: ["生鮭切り身", "にんにく"], N2: ["鶏もも肉", "照り焼きのたれ"], R4: ["トマト", "卵", "長ねぎ"], N5: ["ほうれん草", "胡麻和えの素"], R6: ["ブロッコリー", "にんにく"] };
+/* Thứ tự quầy và tên theo kiem-tra-nguyen-lieu.md */
+var QUAY = [
+  ["肉・魚", ["豚ひき肉", "豚バラ ブロック", "豚ロース 生姜焼き用", "豚スペアリブ 一口サイズ", "豚足", "牛こま切れ", "鶏もも肉", "鶏もも肉 唐揚げ用", "鶏レバー", "砂肝", "むきえび", "生鮭切り身"]],
+  ["卵・豆腐", ["卵", "木綿豆腐", "絹豆腐"]],
+  ["野菜", ["長ねぎ", "トマト", "玉ねぎ", "にんにく", "大根", "生姜", "じゃがいも", "にんじん", "小松菜", "もやし", "にら", "ブロッコリー", "キャベツ", "ほうれん草"]],
+  ["乾物", ["乾燥わかめ"]],
+  ["調味料", ["生姜焼きのたれ", "照り焼きのたれ", "カレールウ", "味噌", "顆粒だし", "胡麻和えの素", "ごまドレッシング"]]
+];
+/* Trích nguyên văn từ cach-nau.md */
+var CACH = {"M1":"M1. Thịt kho trứng (40 phút)\nNguyên liệu: 豚バラ hoặc 豚肩ロース ブロック 300 g, 卵 4 quả.\n1. Luộc trứng 10 phút, ngâm nước lạnh, bóc vỏ.\n2. Cắt thịt miếng vuông khoảng 3 cm. Ướp 2 muỗng canh nước mắm, 1 muỗng canh đường, chút tiêu, 10 phút.\n3. Cho thịt vào nồi, đảo trên lửa vừa đến khi thịt săn lại (khoảng 3 phút).\n4. Đổ nước ngập thịt, thêm trứng. Khi sôi thì hạ lửa nhỏ, đậy nắp, kho 30 phút.\n5. Nêm lại nước mắm hoặc đường cho vừa, tắt bếp.\nMẹo: kho dư một nồi, ăn được 2 bữa.","R4":"R4. Canh cà chua trứng (10 phút)\nNguyên liệu: トマト 2 quả, 卵 2 quả, 長ねぎ 1/2 cây.\n1. Cà chua cắt múi cau. Trứng đánh tan. Hành thái nhỏ.\n2. Nồi với 1 muỗng cà phê dầu, xào cà chua 2 phút.\n3. Đổ 600 ml nước, đun sôi.\n4. Vừa khuấy nồi vừa rót trứng thành dòng nhỏ, để trứng thành sợi.\n5. Nêm 1 muỗng canh nước mắm, 1 muỗng cà phê hạt nêm, rắc hành, tắt bếp.","N2":"N2. Gà sốt teriyaki 照り焼きチキン (20 phút)\nNguyên liệu: 鶏もも肉 1 miếng lớn (khoảng 300 g), 照り焼きのたれ.\n1. Thấm khô gà, dùng nĩa chọc vài lỗ ở mặt thịt để gà không co.\n2. Chảo không dầu, đặt gà mặt da xuống, lửa vừa, áp 6 phút đến khi da vàng giòn.\n3. Lật gà, đậy nắp, lửa nhỏ 5 phút.\n4. Lau bớt mỡ trong chảo bằng giấy, đổ nước sốt (khoảng 3 muỗng canh), đun và lật gà để sốt bám đều, 2 phút.\n5. Cắt miếng vừa ăn, rưới sốt còn lại.\nMẹo: cắt thử miếng dày nhất, nước trong (không hồng) là gà đã chín.","N5":"N5. Cải bó xôi trộn mè ほうれん草の胡麻和え (10 phút)\nNguyên liệu: ほうれん草 1 bó, 胡麻和えの素 (gói gia vị trộn mè).\n1. Rửa cải, giữ nguyên bó.\n2. Luộc trong nước sôi 1 phút, vớt ra ngâm nước lạnh.\n3. Vắt thật khô, cắt khúc 4 cm.\n4. Trộn với gói 胡麻和えの素 theo lượng ghi trên gói.\n5. Bày ra đĩa.","M7":"M7. Cá hồi áp chảo sốt nước mắm tỏi (15 phút)\nNguyên liệu: 生鮭切り身 (骨取り) 2 miếng, にんにく 2 tép.\n1. Thấm khô cá bằng giấy, rắc chút muối và tiêu. Tỏi băm.\n2. Pha bát sốt: 1 muỗng canh nước mắm, 1 muỗng canh đường, 2 muỗng canh nước.\n3. Chảo với 1 muỗng canh dầu, lửa vừa. Đặt cá mặt da xuống, áp 4 phút không động vào.\n4. Lật cá, áp thêm 3 phút, rồi gắp cá ra đĩa.\n5. Phi tỏi trong chảo 30 giây, đổ bát sốt vào, đun sôi 1 phút rồi rưới lên cá.","R6":"R6. Bông cải xanh xào tỏi (10 phút)\nNguyên liệu: ブロッコリー 1 cây, にんにく 2 tép.\n1. Tách bông cải thành bông nhỏ. Tỏi băm.\n2. Luộc bông cải trong nước sôi có chút muối 2 phút, vớt ra để ráo.\n3. Chảo với 1 muỗng canh dầu, phi tỏi 30 giây đến khi thơm (không để cháy).\n4. Cho bông cải vào, đảo 1 phút, nêm 1 muỗng cà phê hạt nêm.\n5. Tắt bếp.","M2":"M2. Gà kho gừng (25 phút)\nNguyên liệu: 鶏もも肉 唐揚げ用 300 g, 生姜 1 củ nhỏ.\n1. Gừng gọt vỏ, thái sợi.\n2. Ướp gà với 1,5 muỗng canh nước mắm, 1 muỗng canh đường, nửa phần gừng, 10 phút.\n3. Cho chảo lên lửa vừa với 1 muỗng canh dầu, cho gà vào, đảo 5 phút đến khi mặt thịt hết màu hồng.\n4. Thêm 100 ml nước và phần gừng còn lại, đậy nắp, lửa nhỏ 10 phút.\n5. Mở nắp, đun thêm 2–3 phút cho nước sánh lại."};
+var LIMIT = 4096;
+
+class Component extends DCLogic {
+  renderVals() {
+    var kieu = this.props.kieu ?? "Yến chốt";
+    var doi = kieu === "Đã đổi món", tu = kieu === "App tự chọn";
+    var tag = doi ? " (đã đổi)" : (tu ? " (app tự chọn)" : "");
+    var days = [
+      { w: "Thứ 7", man: "M1", rau: "R4" },
+      { w: "Chủ nhật", man: doi ? "M2" : "N2", rau: "N5", changed: doi },
+      { w: "Thứ 2", man: "M7", rau: "R6" }
+    ];
+
+    /* Dòng đầu viết hoa toàn bộ, dòng 2 là câu dẫn, sau đó thực đơn từng ngày. */
+    var menu = ("Mình ăn gì thế, Vợ ơi · Đợt Thứ 7" + tag).toLocaleUpperCase("vi") + "\nThực đơn của nhà mình như thế này:\n\n" + days.map(function (d) {
+      return d.w + ": " + TEN[d.man] + " + " + TEN[d.rau] + (d.changed ? " (đã đổi)" : "");
+    }).join("\n") + "\n\n" + "Về nhanh để ăn cơm nhé".toLocaleUpperCase("vi") + " ❤️";
+
+    var need = {};
+    days.forEach(function (d) { NL[d.man].concat(NL[d.rau]).forEach(function (x) { need[x] = 1; }); });
+    var count = 0;
+    var blocks = [];
+    QUAY.forEach(function (q) {
+      var items = q[1].filter(function (x) { return need[x]; });
+      if (items.length) { count += items.length; blocks.push("【" + q[0] + "】\n" + items.join("\n")); }
+    });
+    var shop = "Đi chợ · Đợt Thứ 7 (Thứ 7 → Thứ 2)" + tag + "\n\n" + blocks.join("\n\n");
+
+    var ids = [];
+    days.forEach(function (d) { ids.push(d.man, d.rau); });
+    var head = "Cách nấu · Đợt Thứ 7" + tag;
+    var msgs = [], cur = [];
+    var size = function (parts, k, n) { return (head + " (" + k + "/" + n + ")\n\n" + parts.join("\n\n")).length; };
+    ids.forEach(function (id) {
+      var trial = cur.concat([CACH[id]]);
+      if (cur.length && size(trial, 9, 9) > LIMIT) { msgs.push(cur); cur = [CACH[id]]; }
+      else cur = trial;
+    });
+    if (cur.length) msgs.push(cur);
+    var n = msgs.length;
+    var cook = msgs.map(function (parts, i) {
+      var text = (n > 1 ? head + " (" + (i + 1) + "/" + n + ")" : head) + "\n\n" + parts.join("\n\n");
+      return { text: text, len: text.length.toLocaleString("vi-VN") + " / 4.096 ký tự" };
+    });
+
+    return {
+      kieu: kieu,
+      menu: menu,
+      menuLen: menu.length,
+      shop: shop,
+      shopCount: count + " món hàng, đã gộp trùng (卵, にんにく chỉ ghi một lần)",
+      cook: cook,
+      cookInfo: n === 1 ? "6 món, vừa 1 tin — chưa cần tách" : "6 món, tự tách thành " + n + " tin, mỗi tin trọn món"
+    };
+  }
+}
+</script>
+</body>
+</html>

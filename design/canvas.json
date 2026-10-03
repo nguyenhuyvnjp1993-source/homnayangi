@@ -1,0 +1,25 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Main.dc.html": {"h": 844, "is_interactive": true, "radius": 40, "title": "1 · Chào — bấm thử cả luồng từ đây", "w": 390, "x": 0, "y": 0},
+    "S2-ChonMon.dc.html": {"h": 844, "is_interactive": true, "radius": 40, "title": "2 · Chọn món", "w": 390, "x": 470, "y": 0},
+    "S3-XacNhan.dc.html": {"h": 844, "is_interactive": true, "radius": 40, "title": "3 · Xác nhận", "w": 390, "x": 940, "y": 0},
+    "S4-DaGui.dc.html": {"h": 844, "is_interactive": true, "radius": 40, "title": "4 · Đã gửi", "w": 390, "x": 1410, "y": 0},
+    "S5-DoiMon.dc.html": {"h": 844, "is_interactive": true, "radius": 40, "title": "5 · Đổi món", "w": 390, "x": 1880, "y": 0},
+    "S6-HomNay.dc.html": {"h": 844, "is_interactive": true, "radius": 40, "title": "6 · Hôm nay ăn gì (mở từ thông báo 16:00)", "w": 390, "x": 2350, "y": 0},
+    "Telegram.dc.html": {"h": 2000, "title": "4 tin Telegram — mẫu chữ", "w": 1600, "x": 0, "y": 1300}
+  },
+  "createdOnFiles": {"at": "2026-10-02T08:20:00Z", "v": 1},
+  "designSystems": [
+    {"artifact": "https://claude.ai/code/artifact/96e56038-72f7-4ad6-bee7-3cf312c0b182", "copiedAt": "2026-10-03T05:20:00Z", "namespace": "minhangi", "title": "Mình ăn gì thế, Vợ ơi", "version": "1791004747-f26c"}
+  ],
+  "launch": {"view": "canvas"},
+  "notes": {
+    "t1": {"kind": "title1", "maxW": 2740, "text": "Bản mẫu bấm thử — 6 màn hình (iPhone 14)", "w": 240, "x": 0, "y": -300},
+    "t2": {"kind": "title1", "maxW": 1600, "text": "Tin nhắn Telegram", "w": 240, "x": 0, "y": 1000}
+  },
+  "order": ["Main.dc.html", "S2-ChonMon.dc.html", "S3-XacNhan.dc.html", "S4-DaGui.dc.html", "S5-DoiMon.dc.html", "S6-HomNay.dc.html", "Telegram.dc.html"],
+  "pages": [],
+  "title": "Mình ăn gì thế, Vợ ơi – bản mẫu"
+}
