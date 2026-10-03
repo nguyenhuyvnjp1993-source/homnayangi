@@ -33,6 +33,8 @@ App: https://homnayangivooi.netlify.app
 
 Riêng thông báo 16:00 ngày thường thì mở thẳng màn "Hôm nay ăn gì".
 
+**Tự cập nhật:** mỗi lần mở lại app (và 5 phút một lần), app tự kiểm tra bản mới trên Netlify và tải lại, trừ khi đang chọn / đổi món dở.
+
 **Logo hướng dẫn:** logo tròn 100×100 lắc lư ở góc dưới bên trái, có trên mọi màn. Bấm vào mở bảng hướng dẫn sử dụng cho Yến (nội dung nằm trong `index.html`, phần `id="help"`). Màn có thanh nút ở đáy thì logo nằm ngay trên thanh nút. Mỗi lần mở app, 6 ảnh nền được xáo ngẫu nhiên cho 6 màn hình.
 
 **10 phút không dùng = đóng app:** Yến không chạm vào app 10 phút (đang mở hoặc chạy nền), thì lần chạm hoặc mở tiếp theo, app tải lại từ đầu như vừa mở mới. Ảnh nền được xáo lại, lựa chọn chưa chốt bị bỏ. Món đã chốt vẫn còn, vì đã lưu trong Supabase.
